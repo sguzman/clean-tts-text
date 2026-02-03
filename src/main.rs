@@ -163,7 +163,7 @@ struct UnicodeConfig {
 impl Default for UnicodeConfig {
     fn default() -> Self {
         Self {
-            normalization: UnicodeNormalizationMode::NFKC,
+            normalization: UnicodeNormalizationMode::Nfkc,
             ascii_quotes: true,
             dash_mode: DashMode::Comma,
             ellipsis_mode: EllipsisMode::Period,
@@ -172,16 +172,16 @@ impl Default for UnicodeConfig {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "kebab-case")]
+#[serde(rename_all = "lowercase")]
 enum UnicodeNormalizationMode {
-    NFKC,
-    NFC,
+    Nfkc,
+    Nfc,
     None,
 }
 
 impl Default for UnicodeNormalizationMode {
     fn default() -> Self {
-        UnicodeNormalizationMode::NFKC
+        UnicodeNormalizationMode::Nfkc
     }
 }
 
@@ -546,8 +546,8 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
     }
 
     text = match config.unicode.normalization {
-        UnicodeNormalizationMode::NFKC => text.nfkc().collect::<String>(),
-        UnicodeNormalizationMode::NFC => text.nfc().collect::<String>(),
+        UnicodeNormalizationMode::Nfkc => text.nfkc().collect::<String>(),
+        UnicodeNormalizationMode::Nfc => text.nfc().collect::<String>(),
         UnicodeNormalizationMode::None => text,
     };
 

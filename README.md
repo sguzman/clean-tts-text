@@ -20,7 +20,7 @@ The CLI emits a short summary of bytes and paragraph counts; set `LOG_LEVEL=debu
 `config.toml` is organized into sections that reflect the cleaning stages:
 
 - `[io]` controls newline normalization and whether paragraphs are collapsed to one line per paragraph (recommended for audiobook engines).
-- `[unicode]` normalizes punctuation (NFKC plus dash/ellipsis handling) so the model does not invent dramatic pauses.
+- `[unicode]` normalizes punctuation (`normalization = "nfkc"` by default, but `nfc`/`none` work too) and tame dash/ellipsis handling so the model does not invent dramatic pauses.
 - `[structure]` determines how wrapped lines are joined and which blank-line patterns mark paragraph boundaries.
 - `[markdown]` and `[citations]` strip code fences, inline backticks, markdown links, and numeric footnotes/brackets.
 - `[lists]` replaces bullets with commas to avoid choppy readings of enumerations.
@@ -34,3 +34,13 @@ Each section is fully documented inside `config.toml` so you can adjust the beha
 `examples/matrix.txt` contains a historical narrative with hard line wraps, citations, and dash-heavy sentences—great for testing that the cleaner removes slit-worthy silence without killing the story.
 
 Use `cargo fmt` to keep the code tidy, and `cargo clippy`/`cargo test` if you add helpers later.
+
+## Alternative profile
+
+`config-expressive.toml` keeps paragraph spacing, uses hyphen-based dashes, dotted acronym spelling, and drops code fences with a spoken placeholder. Run it with:
+
+```bash
+cargo run -- --config config-expressive.toml --input examples/matrix.txt --output cleaned/matrix-tts-expressive.txt
+```
+
+Inspect `cleaned/matrix-tts-expressive.txt` to compare how the same source behaves under a slightly more expressive normalization pipeline.

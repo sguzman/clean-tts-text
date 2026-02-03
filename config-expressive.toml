@@ -1,29 +1,29 @@
 [meta]
 version = 1
-profile = "clean-narration-slightly-expressive"
-notes = "Tune for XTTS / Daisy Studio / ebook2audiobook pipelines."
+profile = "expressive-pacing"
+notes = "Preserves paragraphs and leans toward humorous/expressive delivery."
 
 [logging]
-level = "info"
+level = "debug"
 print_summary = true
-write_report = false
-report_path = "tts-clean.report.txt"
+write_report = true
+report_path = "tts-clean-expressive.report.txt"
 
 [io]
-output_format = "one-paragraph-per-line"
+output_format = "preserve-paragraphs"
 normalize_line_endings = true
 trim_trailing_whitespace = true
 
 [unicode]
 normalization = "nfkc"
 ascii_quotes = true
-dash_mode = "comma"
-ellipsis_mode = "period"
+dash_mode = "hyphen"
+ellipsis_mode = "triple"
 
 [whitespace]
 collapse_horizontal = true
 remove_space_before_punct = true
-max_consecutive_blank_lines = 1
+max_consecutive_blank_lines = 0
 
 [structure]
 unwrap_hard_wrapped_lines = true
@@ -32,7 +32,7 @@ join_lines_with = " "
 
 [markdown]
 drop_code_fences = true
-code_fence_replacement = ""
+code_fence_replacement = "Code example omitted."
 strip_inline_code = true
 strip_markdown_links = true
 
@@ -48,24 +48,24 @@ bullet_markers = ["- ", "* ", "• ", "– ", "— "]
 
 [abbreviations]
 expand_acronyms = true
-acronym_style = "spaced"
+acronym_style = "dotted"
 case_policy = "upper"
 
 [abbreviations.map]
-CSS = "C S S"
-HTML = "H T M L"
-HTTP = "H T T P"
-HTTPS = "H T T P S"
-URL = "U R L"
-API = "A P I"
-CPU = "C P U"
-GPU = "G P U"
-JSON = "J S O N"
-SQL = "S Q L"
-XML = "X M L"
-TTS = "T T S"
-XTTS = "X T T S"
-LLM = "L L M"
+CSS = "C. S. S."
+HTML = "H. T. M. L."
+HTTP = "H. T. T. P."
+HTTPS = "H. T. T. P. S."
+URL = "U. R. L."
+API = "A. P. I."
+CPU = "C. P. U."
+GPU = "G. P. U."
+JSON = "J. S. O. N."
+SQL = "S. Q. L."
+XML = "X. M. L."
+TTS = "T. T. S."
+XTTS = "X. T. T. S."
+LLM = "L. L. M."
 
 [pronunciation]
 enable_replacements = true
@@ -78,6 +78,7 @@ enable_replacements = true
 "}" = " brace "
 "(" = ", "
 ")" = ", "
+"—" = " dash "
 
 [guardrails]
 min_output_chars_warn = 200
