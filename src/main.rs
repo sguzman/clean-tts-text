@@ -29,8 +29,6 @@ static RE_HTML_OPEN: Lazy<Regex> =
 static RE_HTML_CLOSE: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"</\s*[a-zA-Z][a-zA-Z0-9]*\s*>").unwrap());
 static RE_COMMA_BEFORE_PERIOD: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*\.").unwrap());
-static RE_ACRONYM_SEQUENCE: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\b[A-Z0-9](?:[.\s]*[A-Z0-9])+\b").unwrap());
 
 #[derive(Parser, Debug)]
 #[command(
@@ -347,65 +345,79 @@ impl Default for ListConfig {
 #[serde(default)]
 struct AbbreviationConfig {
     expand_acronyms: bool,
-    acronym_style: AcronymStyle,
-    case_policy: CasePolicy,
     #[serde(default)]
-    map: BTreeMap<String, String>,
+    tokens: Vec<String>,
+    letter_sounds: BTreeMap<String, String>,
     letter_separator: String,
     digit_separator: String,
 }
 
 impl Default for AbbreviationConfig {
     fn default() -> Self {
-        let mut map = BTreeMap::new();
-        map.insert("CSS".to_string(), "C S S".to_string());
-        map.insert("HTML".to_string(), "H T M L".to_string());
-        map.insert("HTTP".to_string(), "H T T P".to_string());
-        map.insert("HTTPS".to_string(), "H T T P S".to_string());
-        map.insert("URL".to_string(), "U R L".to_string());
-        map.insert("API".to_string(), "A P I".to_string());
-        map.insert("CPU".to_string(), "C P U".to_string());
-        map.insert("GPU".to_string(), "G P U".to_string());
-        map.insert("JSON".to_string(), "J S O N".to_string());
-        map.insert("SQL".to_string(), "S Q L".to_string());
-        map.insert("XML".to_string(), "X M L".to_string());
-        map.insert("TTS".to_string(), "T T S".to_string());
-        map.insert("XTTS".to_string(), "X T T S".to_string());
-        map.insert("LLM".to_string(), "L L M".to_string());
+        let tokens = vec![
+            "CSS".to_string(),
+            "HTML".to_string(),
+            "HTTP".to_string(),
+            "HTTPS".to_string(),
+            "URL".to_string(),
+            "API".to_string(),
+            "CPU".to_string(),
+            "GPU".to_string(),
+            "JSON".to_string(),
+            "SQL".to_string(),
+            "XML".to_string(),
+            "TTS".to_string(),
+            "XTTS".to_string(),
+            "LLM".to_string(),
+        ];
+        let mut letter_sounds = BTreeMap::new();
+        for (key, value) in [
+            ("A", "ay"),
+            ("B", "bee"),
+            ("C", "see"),
+            ("D", "dee"),
+            ("E", "ee"),
+            ("F", "eff"),
+            ("G", "jee"),
+            ("H", "aitch"),
+            ("I", "eye"),
+            ("J", "jay"),
+            ("K", "kay"),
+            ("L", "el"),
+            ("M", "em"),
+            ("N", "en"),
+            ("O", "oh"),
+            ("P", "pee"),
+            ("Q", "cue"),
+            ("R", "ar"),
+            ("S", "ess"),
+            ("T", "tee"),
+            ("U", "you"),
+            ("V", "vee"),
+            ("W", "double you"),
+            ("X", "ex"),
+            ("Y", "why"),
+            ("Z", "zee"),
+            ("0", "zero"),
+            ("1", "one"),
+            ("2", "two"),
+            ("3", "three"),
+            ("4", "four"),
+            ("5", "five"),
+            ("6", "six"),
+            ("7", "seven"),
+            ("8", "eight"),
+            ("9", "nine"),
+        ] {
+            letter_sounds.insert(key.to_string(), value.to_string());
+        }
         Self {
             expand_acronyms: true,
-            acronym_style: AcronymStyle::Spaced,
-            case_policy: CasePolicy::Upper,
-            map,
-            letter_separator: "".to_string(),
+            tokens,
+            letter_sounds,
+            letter_separator: ". ".to_string(),
             digit_separator: " dot ".to_string(),
         }
-    }
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-enum AcronymStyle {
-    Spaced,
-    Dotted,
-}
-
-impl Default for AcronymStyle {
-    fn default() -> Self {
-        AcronymStyle::Spaced
-    }
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-enum CasePolicy {
-    Exact,
-    Upper,
-}
-
-impl Default for CasePolicy {
-    fn default() -> Self {
-        CasePolicy::Upper
     }
 }
 
@@ -767,7 +779,7 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
         YearMode::None => {}
     }
 
-    if config.abbreviations.expand_acronyms && !config.abbreviations.map.is_empty() {
+    if config.abbreviations.expand_acronyms && !config.abbreviations.tokens.is_empty() {
         text = expand_acronyms(&text, &config.abbreviations);
     }
 
@@ -998,7 +1010,7 @@ fn apply_brand_pronunciation(text: &str, brands: &BTreeMap<String, String>) -> S
     entries.sort_by_key(|(key, _)| Reverse(key.len()));
 
     for (from, to) in entries {
-        let pattern = Regex::new(&format!(r"\b{}\b", regex::escape(from))).unwrap();
+        let pattern = Regex::new(&format!(r"(?i)\b{}\b", regex::escape(from))).unwrap();
         result = pattern.replace_all(&result, to.as_str()).to_string();
     }
 
@@ -1185,62 +1197,67 @@ fn apply_selector_pronunciation(text: &str, prefix: &str) -> String {
 }
 
 fn expand_acronyms(text: &str, cfg: &AbbreviationConfig) -> String {
+    if cfg.tokens.is_empty() {
+        return text.to_string();
+    }
+
     let mut result = text.to_string();
-    for (token, replacement) in cfg.map.iter() {
-        let token_to_match = match cfg.case_policy {
-            CasePolicy::Exact => token.clone(),
-            CasePolicy::Upper => token.to_uppercase(),
-        };
-        let final_replacement = match cfg.acronym_style {
-            AcronymStyle::Spaced => replacement.clone(),
-            AcronymStyle::Dotted => replacement.replace(' ', ". "),
-        };
+    for token in cfg.tokens.iter() {
         let pattern = format!(
-            r"\b{}(?P<digits>\d+(?:\.\d+)*)?\b",
-            regex::escape(&token_to_match)
+            r"(?i)\b{}(?P<digits>\d+(?:\.\d+)*)?\b",
+            regex::escape(token)
         );
         let re = Regex::new(&pattern).unwrap();
         result = re
             .replace_all(&result, |caps: &regex::Captures| {
-                let mut spelled = final_replacement.clone();
+                let letters = caps[0]
+                    .chars()
+                    .filter(|c| c.is_alphabetic())
+                    .map(|c| {
+                        let key = c.to_ascii_uppercase().to_string();
+                        cfg.letter_sounds
+                            .get(&key)
+                            .cloned()
+                            .unwrap_or_else(|| key.to_lowercase())
+                    })
+                    .collect::<Vec<_>>();
+                let mut spelled = letters.join(&cfg.letter_separator);
                 if let Some(digits) = caps.name("digits") {
-                    if !digits.as_str().is_empty() {
-                        spelled.push(' ');
-                        let formatted = digits
+                    if !digits.as_str().trim().is_empty() {
+                        let number_spelled = digits
                             .as_str()
                             .split('.')
+                            .map(|group| spelled_digit_group(group, cfg))
+                            .filter(|grp| !grp.is_empty())
                             .collect::<Vec<_>>()
                             .join(&cfg.digit_separator);
-                        spelled.push_str(&formatted);
+                        if !number_spelled.is_empty() {
+                            if !spelled.is_empty() {
+                                spelled.push(' ');
+                            }
+                            spelled.push_str(&number_spelled);
+                        }
                     }
                 }
-                spelled
+                if spelled.is_empty() {
+                    caps[0].to_string()
+                } else {
+                    spelled
+                }
             })
             .to_string();
     }
-    result = normalize_acronym_spacing(&result, &cfg.letter_separator);
     result
 }
 
-fn normalize_acronym_spacing(text: &str, separator: &str) -> String {
-    if separator != "" {
-        return RE_ACRONYM_SEQUENCE
-            .replace_all(text, |caps: &regex::Captures| {
-                let letters: Vec<String> = caps[0]
-                    .chars()
-                    .filter(|c| c.is_alphanumeric())
-                    .map(|c| c.to_string())
-                    .collect();
-                letters.join(separator)
-            })
-            .to_string();
-    }
-    RE_ACRONYM_SEQUENCE
-        .replace_all(text, |caps: &regex::Captures| {
-            caps[0]
-                .chars()
-                .filter(|c| c.is_alphanumeric())
-                .collect::<String>()
+fn spelled_digit_group(group: &str, cfg: &AbbreviationConfig) -> String {
+    group
+        .chars()
+        .filter(|c| c.is_ascii_digit())
+        .map(|c| {
+            let key = c.to_string();
+            cfg.letter_sounds.get(&key).cloned().unwrap_or_else(|| key)
         })
-        .to_string()
+        .collect::<Vec<_>>()
+        .join(&cfg.letter_separator)
 }
