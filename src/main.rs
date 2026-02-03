@@ -754,10 +754,6 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
         text = apply_brand_pronunciation(&text, &config.pronunciation.brand_map);
     }
 
-    if config.abbreviations.expand_acronyms && !config.abbreviations.map.is_empty() {
-        text = expand_acronyms(&text, &config.abbreviations);
-    }
-
     match config.pronunciation.year_mode {
         YearMode::American => {
             text = apply_year_pronunciation(
@@ -767,6 +763,10 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
             );
         }
         YearMode::None => {}
+    }
+
+    if config.abbreviations.expand_acronyms && !config.abbreviations.map.is_empty() {
+        text = expand_acronyms(&text, &config.abbreviations);
     }
 
     if config.pronunciation.version_mode != VersionMode::None {
