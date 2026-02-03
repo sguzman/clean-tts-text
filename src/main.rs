@@ -58,6 +58,7 @@ struct Config {
     guardrails: GuardrailConfig,
     logging: LoggingConfig,
     experimental: ExperimentalConfig,
+    punctuation: PunctuationConfig,
 }
 
 impl Default for Config {
@@ -76,6 +77,7 @@ impl Default for Config {
             guardrails: GuardrailConfig::default(),
             logging: LoggingConfig::default(),
             experimental: ExperimentalConfig::default(),
+            punctuation: PunctuationConfig::default(),
         }
     }
 }
@@ -464,6 +466,22 @@ impl Default for ExperimentalConfig {
     }
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct PunctuationConfig {
+    collapse_commas: bool,
+    max_consecutive_commas: usize,
+}
+
+impl Default for PunctuationConfig {
+    fn default() -> Self {
+        Self {
+            collapse_commas: true,
+            max_consecutive_commas: 1,
+        }
+    }
+}
+
 #[derive(Default)]
 struct CleanStats {
     input_length: usize,
@@ -629,6 +647,10 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
         text = expand_acronyms(&text, &config.abbreviations);
     }
 
+    if config.punctuation.collapse_commas && config.punctuation.max_consecutive_commas > 0 {
+        text = collapse_commas(&text, config.punctuation.max_consecutive_commas);
+    }
+
     if config.experimental.strip_punct_runs && config.experimental.punct_run_min_len > 0 {
         let pattern = RE_PUNCT_RUN.clone();
         text = pattern
@@ -732,6 +754,44 @@ fn collapse_blank_lines(text: &str, max_blank: usize) -> String {
     out.join("\n")
 }
 
+fn collapse_commas(text: &str, max_consecutive: usize) -> String {
+    if max_consecutive == 0 {
+        return text.to_string();
+    }
+
+    let mut result = String::with_capacity(text.len());
+    let mut comma_run = 0;
+    let mut buffered_space = String::new();
+
+    for ch in text.chars() {
+        if ch == ',' {
+            if comma_run < max_consecutive {
+                if !buffered_space.is_empty() {
+                    result.push_str(&buffered_space);
+                    buffered_space.clear();
+                }
+                result.push(',');
+            }
+            comma_run += 1;
+        } else if ch.is_whitespace() {
+            buffered_space.push(ch);
+        } else {
+            if !buffered_space.is_empty() {
+                result.push_str(&buffered_space);
+                buffered_space.clear();
+            }
+            comma_run = 0;
+            result.push(ch);
+        }
+    }
+
+    if !buffered_space.is_empty() {
+        result.push_str(&buffered_space);
+    }
+
+    result
+}
+
 fn apply_replacements(text: &str, replacements: &BTreeMap<String, String>) -> String {
     let mut result = text.to_string();
     let mut entries: Vec<_> = replacements.iter().collect();
@@ -755,10 +815,22 @@ fn expand_acronyms(text: &str, cfg: &AbbreviationConfig) -> String {
             AcronymStyle::Spaced => replacement.clone(),
             AcronymStyle::Dotted => replacement.replace(' ', ". "),
         };
-        let pattern = format!(r"\b{}\b", regex::escape(&token_to_match));
+        let pattern = format!(
+            r"\b{}(?P<digits>\d+(?:\.\d+)*)?\b",
+            regex::escape(&token_to_match)
+        );
         let re = Regex::new(&pattern).unwrap();
         result = re
-            .replace_all(&result, final_replacement.as_str())
+            .replace_all(&result, |caps: &regex::Captures| {
+                let mut spelled = final_replacement.clone();
+                if let Some(digits) = caps.name("digits") {
+                    if !digits.as_str().is_empty() {
+                        spelled.push(' ');
+                        spelled.push_str(digits.as_str());
+                    }
+                }
+                spelled
+            })
             .to_string();
     }
     result

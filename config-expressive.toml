@@ -84,6 +84,10 @@ enable_replacements = true
 min_output_chars_warn = 200
 max_paragraph_chars = 0
 
+[punctuation]
+collapse_commas = true
+max_consecutive_commas = 1
+
 [experimental]
 strip_punct_runs = false
 punct_run_min_len = 5

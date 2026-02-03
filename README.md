@@ -24,7 +24,8 @@ The CLI emits a short summary of bytes and paragraph counts; set `LOG_LEVEL=debu
 - `[structure]` determines how wrapped lines are joined and which blank-line patterns mark paragraph boundaries.
 - `[markdown]` and `[citations]` strip code fences, inline backticks, markdown links, and numeric footnotes/brackets.
 - `[lists]` replaces bullets with commas to avoid choppy readings of enumerations.
-- `[abbreviations]` and `[pronunciation]` expand acronyms (e.g. `CSS` → `C S S`) and apply small sentence-friendly replacements.
+- `[abbreviations]` and `[pronunciation]` expand acronyms (e.g. `CSS` → `C. S. S.` by default) and apply small sentence-friendly replacements; the cleaner now appends digits (so `CSS1` becomes `C. S. S. 1`).
+- `[punctuation]` collapses multiple comma-driven pauses so long lists don't trigger repeated gaps; you can control how many commas survive in a row.
 - `[whitespace]`, `[guardrails]`, and `[experimental]` govern spacing collapses, warning thresholds, and optional punctuation-ray trimming.
 
 Each section is fully documented inside `config.toml` so you can adjust the behavior before running the CLI.

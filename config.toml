@@ -48,7 +48,7 @@ bullet_markers = ["- ", "* ", "• ", "– ", "— "]
 
 [abbreviations]
 expand_acronyms = true
-acronym_style = "spaced"
+acronym_style = "dotted"
 case_policy = "upper"
 
 [abbreviations.map]
@@ -82,6 +82,10 @@ enable_replacements = true
 [guardrails]
 min_output_chars_warn = 200
 max_paragraph_chars = 0
+
+[punctuation]
+collapse_commas = true
+max_consecutive_commas = 1
 
 [experimental]
 strip_punct_runs = false
