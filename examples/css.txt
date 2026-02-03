@@ -1,0 +1,2868 @@
+A Comprehensive History of CSS — Institutions, Specs, and Practice
+
+Executive Summary
+
+CSS (Cascading Style Sheets) has evolved through parallel tracks: the
+formal progression of W3C specifications and the informal ways
+developers actually used CSS in practice. Over nearly three decades,
+these tracks have continually influenced each other. Key phases include:
+
+-   Early Standards (mid-1990s): CSS was born from the need to separate
+    content from presentation on the Web. Håkon Wium Lie’s 1994 proposal
+    for Cascading style sheets (with the novel idea of blending author
+    and user styles) led to CSS Level 1 in 1996[1][2]. Early adoption
+    was slow due to limited browser support and a perception that CSS
+    could only handle basic styling[3]. Pioneering sites like CSS Zen
+    Garden (2003) dramatically demonstrated CSS’s potential by using one
+    HTML file with multiple CSS designs[3][4], helping shift the
+    industry from table-based layouts to CSS-based design.
+
+-   CSS1, CSS2, CSS2.1 (1996–2011): The W3C’s CSS Working Group
+    (formed 1997) published CSS1 (Dec 1996) defining basic styling
+    (fonts, colors, spacing)[5], then CSS2 (May 1998) adding layout
+    features like absolute positioning and media types[6]. However, full
+    CSS2 proved ambitious—browser interoperability lagged, and parts of
+    CSS2 were later removed or deferred. CSS2.1 emerged as a refinement,
+    focusing on what implementations agreed on; it became a W3C
+    Recommendation in 2011 after a decade of revisions[7]. This long
+    stabilization period gave browsers time to catch up, and by 2011,
+    CSS2.1 was effectively the baseline of “modern CSS” support.
+
+-   Modular CSS3 and “No CSS4” (2000s–2010s): To avoid monolithic spec
+    bottlenecks, the CSS Working Group split CSS into modular
+    specifications after CSS2.1[8][9]. Each module (Selectors, Color,
+    Flexbox, Grid, etc.) advances on its own “Level.” All modules at
+    Level 3 were informally termed “CSS3,” but there was never a single
+    CSS3 spec. The Working Group explicitly moved away from version
+    numbers – there is no CSS4[10]. Instead, modules increment to
+    Level 4, Level 5, etc., when they add new features. For example,
+    Selectors Level 3 (completed 2005) was followed by Selectors Level 4
+    (ongoing) – but we don’t call this “CSS4”[11]. The current state of
+    CSS is defined by CSS Snapshots (e.g. CSS Snapshot 2024[12]), which
+    collect the stable, interoperable specs at a point in time. This
+    modular approach has allowed CSS to evolve faster and more
+    incrementally, though it requires developers to track many spec
+    modules.
+
+-   Browser Wars to Evergreen Browsers (2000s–2010s): Through the 2000s,
+    browser engines (Trident/IE, Gecko/Firefox, Presto/Opera,
+    WebKit/Safari) raced to implement (and often extend) CSS features,
+    sometimes with proprietary or prefixed syntax. This led to
+    inconsistencies – e.g. each engine required -moz-, -webkit-, etc.
+    prefixes for new CSS properties. Around 2012, concerns grew that
+    “-webkit-only” CSS on popular mobile sites was fragmenting the web.
+    The community responded with tools like Autoprefixer
+    (introduced 2013) to automatically add needed prefixes[13], and the
+    W3C encouraged cross-vendor standards efforts. By the mid-2010s,
+    browsers adopted rapid-release “evergreen” cycles (Chrome, Firefox,
+    Edge-Chromium) and collaborated on interoperability (e.g. test
+    suites and the Interop 2023 initiative). Today, only three major
+    engines remain (Chromium/Blink, WebKit, Gecko), and they coordinate
+    on implementing features similarly – a far cry from the early chaos.
+    Vendor prefixes are now largely a historical footnote, with official
+    guidance that experimental features be behind flags rather than
+    exposed in public with prefixes[14][15].
+
+-   Community Practices (2000s–2020s): In practice, developers
+    continually innovated techniques to fill CSS gaps. Early on, complex
+    layouts were achieved with HTML tables or floats, until CSS gained
+    new layout systems. The late 2000s saw grid frameworks like
+    Blueprint (2007) and 960.gs (2008) which used floats and .col
+    classes to create multi-column grids[16][17]. As projects grew,
+    maintainability issues led to CSS methodologies: e.g. OOCSS (2009)
+    promoted reusable “objects” and separation of structure from
+    skin[18]; BEM (Block-Element-Modifier, from Yandex c. 2010)
+    introduced a strict naming convention to make styles predictable and
+    avoid conflicts[19]; SMACSS (2011) provided a categorization scheme
+    for styles (base, layout, module, state, theme). Preprocessors like
+    Sass (2006) and LESS (2009) emerged, adding variables, nesting, and
+    functions to CSS authoring, which became standard team tools by
+    early 2010s. In the mid-2010s, PostCSS (2013) enabled a plugin
+    ecosystem (with Autoprefixer its most famous plugin[13]). The late
+    2010s brought a shift toward component-driven UI development, giving
+    rise to CSS-in-JS solutions that co-locate styles with JavaScript
+    components, and utility-first CSS frameworks like Tailwind (2017)
+    that trade semantic class names for speed and consistency.
+
+-   Spec and Practice Convergence (late 2010s–2020s): Modern CSS
+    incorporates solutions to many long-time pain points, often informed
+    by those community practices. For example, CSS now has flexbox and
+    grid layout, eliminating the need for float-based grids. We have CSS
+    custom properties (variables), reducing reliance on preprocessors
+    for theming. New features like cascade layers address stylesheet
+    architecture challenges that methodologies like BEM and ITCSS tried
+    to solve (managing specificity across large codebases)[15][19].
+    Native CSS nesting is arriving, inspired by Sass’s popular nesting
+    syntax. The :has() selector allows parent/ancestor styling once only
+    possible with JavaScript. And container queries (stable in 2023)
+    fulfill the responsive design community’s wish to style components
+    based on their container size, not just the viewport[20][21]. In
+    effect, the formal spec process has sped up to deliver authors more
+    powerful, ergonomic tools, often modeled on ideas proven in the
+    field.
+
+In summary, the history of CSS is a back-and-forth dance between
+specification and implementation, between what the standards define and
+what developers need. Each era of CSS brought new capabilities (from
+CSS2’s positioning to CSS3’s selectors and animations to today’s
+container queries) and new best practices (from table hacks to floats to
+flexbox; from global styles to BEM to CSS-in-JS and design systems). The
+result in 2025 is a very rich CSS environment – one where developers
+must understand not only the formal concepts (modules, levels, the
+cascade) but also the informal heritage (why certain conventions exist).
+Moving forward, CSS is effectively a living standard; there won’t be a
+“CSS4” bombshell, but a steady stream of incremental enhancements.
+Understanding how we got here – the triumphs and missteps – is key to
+using CSS effectively and anticipating its future evolution.
+
+Timeline of CSS: Specs, Features, and Community Milestones (1994–2025)
+
+The timeline below interweaves major specification milestones,
+browser/engine developments, and CSS usage trends. It shows how formal
+specs and real-world practice progressed together:
+
+-   1994: Håkon Wium Lie proposes “Cascading HTML Style Sheets” (October
+    1994)[1]. Bert Bos (then building the Argo browser with its own
+    style language) joins forces with Lie[22]. Multiple other style
+    language proposals circulate, but the cascade concept (merging
+    author, user, and browser styles) is unique to Lie’s CSS[2].
+    Netscape and Mosaic browsers begin adding presentational HTML tags
+    like <font> and <center> in lieu of a style language[1].
+
+-   1995: Early CSS drafts discussed on www-talk mailing list. At the
+    WWW3 conference (April ’95), Lie and Bos demonstrate CSS working in
+    browsers (Arena and Argo)[23]. Discussions of how to balance author
+    vs. user control ensue.
+
+-   Dec 17, 1996 (Spec): CSS Level 1 becomes an official W3C
+    Recommendation[5]. CSS1 is a single monolithic spec covering font
+    properties, text styling, simple box model, and the foundational
+    cascade and specificity rules. Dec 1996 (Browser): Internet
+    Explorer 3 (’96) had partial CSS support; Netscape 4 (’97)
+    implements CSS but with many bugs. Early adoption is cautious – many
+    developers still rely on table layouts and deprecated HTML styling.
+
+-   May 1998 (Spec): CSS Level 2 (CSS2) published as W3C
+    Recommendation[6]. Introduces substantial features: absolute,
+    relative, and fixed positioning, the z-index stacking context,
+    advanced selectors, media types for print and screen, fonts and
+    aural style rules, etc. CSS2 is forward-looking but ahead of what
+    browsers can do in 1998. 1998–2000 (Browsers): IE4/5 and Netscape 4
+    implement parts of CSS2, but inconsistently. The infamous “browser
+    wars” era sees CSS support improving in IE and fading in Netscape
+    (whose <i>layer</i> tag and JSSS alternative fail, then Netscape is
+    rewritten as Mozilla/Gecko).
+
+-   1998–2002 (Community): “Div and CSS layout” slowly gains traction as
+    an alternative to table-based design. Early evangelists (e.g. The
+    Web Standards Project) push for using CSS for layout despite
+    inconsistencies. CSS Zen Garden launches May 2003, showcasing
+    beautiful designs all from one HTML file with different CSS –
+    proving CSS’s power and inspiring designers[3][4]. This galvanizes
+    standards adoption: “in 2003 nobody was using CSS beyond fonts and
+    colors,” creator Dave Shea recalls, but Zen Garden helped change
+    that perception[3].
+
+-   1999–2001 (Specs): Realizing CSS2 is too large/unfinished, the CSS
+    Working Group begins CSS 2.1 as a “snapshot” of CSS2 features that
+    are interoperable. Work also begins on modular CSS3 drafts. By 2001,
+    first CSS3 module drafts (e.g. Selectors Level 3) appear[24].
+    Notably, some new modules start at Level 3, while entirely new
+    features (never in CSS2) start at Level 1 (e.g. CSS3 Grid and
+    Flexbox specs were “Level 1” because they had no equivalent in
+    CSS2[25]).
+
+-   2002 (Community): Complex CSS layouts still hampered by CSS2
+    limitations (no grid or flexbox). Developers craft techniques: the
+    “clearfix hack” for clearing floats, image replacement tricks for
+    custom headings, and “sliding doors” for rounded-corner tabs (using
+    multiple background images). Eric Meyer publishes the first widely
+    used CSS Reset (2004), a snippet to zero out browser default styles
+    so designers can start with a consistent blank slate.
+
+-   2003 (Browser): Firefox 1.0 (Mozilla) released, significantly
+    advancing standards support (polished CSS1/2, better consistency).
+    IE6 (2001) remains widely used with quirks (e.g. the hasLayout bug),
+    but IE’s dominant market share forces developers to accommodate its
+    CSS quirks through hacks/comment filters.
+
+-   2005 (Community): Yahoo releases the YUI CSS Framework, including a
+    Grid component – an early pre-built CSS grid system for 3-column
+    layouts. This presages a wave of CSS frameworks. Web standards
+    advocacy peaks: “Designing with Web Standards” (Zeldman, 2nd
+    ed. 2006) and others promote CSS-based layouts as best practice.
+
+-   2005–2009 (Practice & Specs): CSS Working Group iterates on specs
+    while web developers experiment. The term “CSS3” enters usage to
+    describe new features like border-radius, selectors, etc., even
+    though formally each is a separate module. Vendors start shipping
+    experimental CSS3 features with prefixes (Safari’s
+    -webkit-border-radius in 2005, etc.). The acid2 test (2005) pushes
+    browser makers to render CSS1/2 correctly. In response to real-world
+    layout struggles, the Working Group incubates proposals for flexible
+    box layout (early Flexbox drafts in 2009) and grid layout (first
+    grid draft by 2011, inspired in part by Microsoft’s early XAML grid
+    and Yahoo’s templates).
+
+-   Aug 2007 (Community): Blueprint CSS framework released, offering a
+    24-column float-based grid plus resets and default
+    typography[16][26]. It popularizes grid classes like .span-x for
+    layout and influences many sites’ CSS structure. Blueprint also
+    includes an integrated CSS reset, showing the trend of sharing
+    common CSS foundations.
+
+-   Mar 2008 (Community): 960 Grid System by Nathan Smith released (12-
+    or 16-column layout grid)[17]. It gains huge popularity for its
+    simplicity. CSS frameworks proliferate (Elastic, YAML, etc.),
+    indicating broad demand for prebuilt responsive layouts before
+    “responsive design” per se has arrived.
+
+-   2009 (Community): Object-Oriented CSS (OOCSS) presented by Nicole
+    Sullivan[27][18]. OOCSS promotes breaking CSS into reusable
+    “objects” (for example, a media object with fixed image + flexible
+    text) and separating structure (e.g. layout rules) from skin
+    (theme/styling). It also discourages deeply nested selectors and
+    location-dependent styles, foreshadowing BEM. Sullivan open-sources
+    a set of OOCSS frameworks (including a grid) on GitHub in
+    2009[28][29]. This marks a shift toward treating CSS more like
+    reusable code and less like page-specific artistry.
+
+-   Sep 2009 (Spec): CSS 2.1 is finally Candidate Recommendation (after
+    multiple working drafts). It will become a Recommendation in
+    2011[7], essentially superseding CSS2.0. Meanwhile, work on CSS3
+    modules accelerates.
+
+-   2010 (Community): Ethan Marcotte coins “Responsive Web Design” (RWD)
+    in a seminal A List Apart article (May 2010)[30]. He demonstrates
+    fluid grids, flexible images, and CSS3 media queries as the “three
+    technical ingredients” of a new approach to multidevice layouts[30].
+    The Boston Globe’s 2011 redesign (led by Marcotte) is a flagship RWD
+    launch, proving that one website can adapt to many screen sizes.
+    Media Queries Level 3 becomes a W3C Recommendation in June 2012[31],
+    but by then developers are already using them widely (browsers
+    supported @media rules a few years before recommendation). RWD’s
+    rise rapidly makes responsive, mobile-first design a de facto
+    standard approach.
+
+-   2011 (Spec/Process): W3C formally shifts to a “modular” CSS model.
+    Rather than a single CSS3 spec, dozens of modules are in draft at
+    different levels. Notably, “CSS4” is a myth – it does not exist as a
+    spec[10]. Developers are encouraged to think in terms of individual
+    module levels. The Working Group also publishes CSS Snapshot 2010 (a
+    Note listing CSS specs considered stable by end of 2010)[32],
+    followed by Snapshot 2015, etc., as a guide for implementers and
+    authors about the current state[12].
+
+-   2011 (Community): Bootstrap 1.0 released by Twitter (August 2011) as
+    an open-source CSS toolkit[33]. It includes a 12-column grid,
+    ready-made UI components, and uses a preprocessor (LESS) for the
+    first time in a major framework[33]. Bootstrap quickly becomes the
+    most-starred project on GitHub. Its Bootstrap 2 (2012) adds a
+    responsive grid and responsive utility classes, reflecting the RWD
+    wave. ZURB’s Foundation framework (2011) similarly embraces
+    mobile-first responsive design and goes head-to-head with
+    Bootstrap[34].
+
+-   2011 (Community): Jonathan Snook publishes SMACSS (Scalable Modular
+    Architecture for CSS), a style guide organizing CSS into Base,
+    Layout, Module, State, and Theme rules. SMACSS and similar guides
+    (like Google’s CSS style guide) aim to make large-scale CSS more
+    maintainable, acknowledging that CSS at scale needs conventions
+    beyond the language’s basics.
+
+-   2012 (Specs): Many CSS3 modules reach final stages: Selectors
+    Level 3 (Rec 2011), CSS3 Color (Rec 2011), CSS3 Backgrounds and
+    Borders (Rec 2012, bringing border-radius, box-shadow, etc.), CSS3
+    Media Queries (Rec 2012). More are in Candidate Recommendation (e.g.
+    CSS3 Transitions/Animations). CSS Flexible Box Layout Module
+    (Flexbox) is reworked after initial 2009 draft – by 2012 a vastly
+    improved Flexbox spec is in CR[35]. Browser support for unprefixed
+    flexbox lands ~2013–2014 (Chrome 29, IE10, etc.), with prefix
+    support even earlier[36][37].
+
+-   2012 (Community/Tools): Autoprefixer (by Andrey Sitnik) is created
+    (initial release 2013) to automatically add vendor prefixes during
+    build[13]. Within a couple of years, it becomes a standard part of
+    front-end build chains (Grunt, gulp, webpack setups), effectively
+    solving the prefix puzzle for developers. This both relieved
+    developer pain and arguably made it safer for browsers to implement
+    experimental features behind flags instead of exposing via prefixes.
+
+-   2013 (Spec): CSS Grid Layout Module Level 1 enters Candidate
+    Recommendation status (first CR snapshot in 2014)[38]. Grid had a
+    long incubation: an early Microsoft proposal in IE10 (2012)
+    implemented a preliminary grid with -ms- syntax, but the final Grid
+    spec (co-edited by Tab Atkins and Elika Etemad) was aligned across
+    vendors. Meanwhile CSS Transforms, Transitions, Animations (drafted
+    in late 2000s) become widely used, enabling rich UI effects purely
+    in CSS.
+
+-   2013–2014 (Community): PostCSS emerges, generalized from the
+    Autoprefixer project. It treats CSS as a syntax tree that plugins
+    can transform. Many Sass/LESS users begin moving to PostCSS (with
+    plugins for nesting, future CSS syntax polyfills, etc.) especially
+    as Node.js-based build tools rise. BEM methodology gains global
+    traction – articles, libraries, and tooling appear. By giving
+    everything a single class (block or element names plus modifiers),
+    BEM offered a way to avoid specificity conflicts and deeply nested
+    selectors, which in turn influenced how people structured HTML and
+    CSS in large apps[19].
+
+-   2014 (Community): Two trends diverge: “Atomic” or Utility-first CSS
+    and CSS-in-JS. Utility-first: Projects like Tachyons (2014) and
+    later Tailwind CSS (2017) promote writing tiny helper classes (e.g.
+    .pa-4 for padding) and composing UIs from these, sacrificing
+    semantic class names for speed and consistency. This approach, while
+    controversial, resonates with teams building design systems – it
+    provides constraints and avoids many cascade issues by not relying
+    on inheritance or context. CSS-in-JS: Separately, React’s rise
+    (2013+) inspires solutions to style components with encapsulation.
+    Facebook’s 2014 talk on “CSS in JS” (by Vjeux) sparks libraries like
+    CSS Modules (2015) which generate unique class names for each
+    module, and Styled-Components (2016) and Emotion (2017) which allow
+    writing CSS in JavaScript files, scoping styles to components and
+    supporting dynamic theming via props. This period sees an explosion
+    of experimentation in how to manage CSS – from keeping it very
+    global (utilities) to locking it down per-component (CSS-in-JS).
+
+-   Oct 2014 (Spec): Selectors Level 4 working draft introduces powerful
+    relational selectors like :has() (subject selector) and adds $ for
+    case-sensitive attribute matching, etc. While it would take years to
+    implement :has(), this indicated the WG’s awareness of a
+    long-standing request: selecting parent elements. (:has() wouldn’t
+    fully arrive in browsers until 2022–2023.)
+
+-   2015 (Spec/Interop): CSS Snapshot 2015 is published as a Group
+    Note[39], enumerating all CSS specs considered stable as of 2015. By
+    now, there is no thought of “CSS4” inside W3C; the snapshot
+    mechanism is how the WG signals a batch of broadly implemented
+    features. All major browsers are auto-updating (“evergreen”) by this
+    point (Chrome, Firefox, Safari, the new Edge), leading to far better
+    CSS feature uptake.
+
+-   2016 (Spec): Flexbox spec reaches the Candidate Recommendation
+    Snapshot stage (refresh in 2016)[40] and is essentially done; all
+    major engines support it (with some bugs ironed out by 2017). Grid
+    Layout is also nearing completion; major breakthroughs in
+    interoperability happen as the WG hosts a “Grid Summit” with browser
+    teams to align on behavior.
+
+-   2016 (Community): Nicolas Gallagher and Jonathan Neal’s
+    normalize.css gains prominence as an alternative to resets. Rather
+    than wiping out all default styles, Normalize (v1.0 in 2012, v4
+    by 2016) carefully preserves useful browser defaults and fixes
+    bugs[41][42]. By 2016, many frameworks (Bootstrap, etc.) bundle
+    Normalize.css[43], and the philosophy shifts from “reset everything”
+    to “normalize differences.” This shows community influence on what’s
+    considered best practice as browser defaults themselves coalesce.
+
+-   Mar 2017 (Spec/Browser): CSS Grid Layout Level 1 is shipped in
+    Chrome 57, Firefox 52, and Safari 10.1 in a coordinated release — an
+    unprecedented cross-vendor launch for a major feature. Jen Simmons
+    dubs 2017 “the year of CSS Grid”[44]. Grid enables two-dimensional
+    layouts with explicit row and column tracks, fulfilling a
+    decade-long wish to easily create complex layouts without <table> or
+    fragile floats. Later that year, the spec becomes a W3C
+    Recommendation (Dec 2017) after thorough testing[45].
+
+-   2017 (Practice): With Flexbox & Grid widely available, the “float
+    era” ends. Legacy grid frameworks either pivot (Bootstrap 4 in 2018
+    adopts Flexbox for its grid) or gradually decline. A new CSS Layout
+    paradigm emerges: flexbox for one-dimensional alignment (navbars,
+    toolbars, form rows) and grid for overall page or card layouts.
+    Tutorials abound comparing float vs flex vs grid implementations,
+    showing dramatically simpler CSS with the new tools. (Example: a
+    3-column fluid grid that required clearfixes and percentage math in
+    2010 can be done with three lines of CSS using display: grid in
+    2017.)
+
+-   2018 (Spec): CSS Custom Properties (Variables) Level 1 becomes a W3C
+    Recommendation (working drafts started 2012). By now, support is
+    ubiquitous (Chrome 49+, Firefox 31+, Safari 9+)[46]. Custom
+    properties, with their ability to cascade and be updated at runtime,
+    fundamentally changed how design tokens and theming are handled in
+    CSS. Design systems begin using CSS vars for color palettes, spacing
+    scales, etc., often in combination with a “CSS pipeline” of
+    preprocessing and PostCSS. (Notably, variables are one case where
+    the spec leapfrogged preprocessors: Sass/LESS variables are
+    lexically scoped and precompiled, whereas CSS custom properties are
+    dynamic and live in the cascade, enabling new possibilities like
+    theme toggling without recompiling CSS.)
+
+-   2019 (Spec): Subgrid is defined in Grid Layout Level 2 (First
+    Working Draft 2018[47]). Firefox 71 (Dec 2019) is the first to ship
+    CSS subgrid, allowing a grid item to inherit its parent grid’s track
+    definition. This was a highly requested enhancement for nested grids
+    (e.g., equal column alignment across nested components). However,
+    other browsers lag; it takes until 2023 for Chromium and Safari to
+    ship subgrid.
+
+-   2019 (Community): The pendulum swings somewhat away from heavy
+    CSS-in-JS as performance concerns surface (runtime styling overhead)
+    and as native CSS improves. Strategies like CSS Modules (which
+    output static CSS files with hashed classnames) offer a middle
+    ground. Nonetheless, CSS-in-JS remains influential—popular libraries
+    like Material-UI and Atlassian’s style systems use it—and it
+    pressures standards for better scoping mechanisms. The stage-3
+    proposal for an @scope at-rule (allowing to scope a block of CSS to
+    a selector) is one response, aiming to provide style encapsulation
+    natively (still under discussion as of 2025).
+
+-   2020 (Spec): CSS Snapshot 2020 Note is published, indicating the
+    maturity of a wide array of level 3 specs[38]. By this point, specs
+    like CSS Positioning 3 (with position: sticky), Backgrounds &
+    Borders 3, Transforms 1, Transitions 1, Animations 1, Flexbox 1,
+    Grid 1, Media Queries 4 (adding prefers-color-scheme etc.),
+    Selectors 4 (partial), and many more are effectively implemented in
+    at least two engines.
+
+-   2020–21 (Practice): Tailwind CSS sees explosive adoption, indicating
+    a mainstream acceptance of utility-first CSS for building design
+    systems. Simultaneously, large companies increasingly use CSS-in-JS
+    (or CSS Module) approaches within frameworks (React, Vue) – though
+    some, like Github’s Primer Design System, stick to BEM/utility
+    hybrids. The specificity war in big stylesheets (competing selectors
+    with !important or long chains) becomes untenable; in community
+    forums, developers joke about the need for a “cascade reset.” The
+    idea of cascade layers gains traction as a way to systematically
+    organize CSS sources.
+
+-   2021 (Interop): All major browser vendors and the W3C cooperate on
+    Interop 2021, an effort to fix long-standing CSS inconsistencies
+    (e.g. in flexbox, grid, sticky positioning, aspect-ratio, etc.). The
+    success of this and subsequent Interop efforts in 2022 and 2023
+    leads to much more consistent CSS behavior across browsers, reducing
+    the need for hacks. The fact that normalize.css is less critical
+    than it once was is testament to this alignment – browsers have
+    converged on many defaults and fixed many bugs that normalize.css
+    used to handle[48][42].
+
+-   2022 (Spec/Browsers): CSS Cascade Layers (@layer) is finalized (in
+    CSS Cascading and Inheritance Level 5) and ships cross-browser in
+    2022 (Chrome 99, Firefox 97, Safari 15.4)[15]. Cascade layers
+    introduce a new way to organize CSS rules into named layers with an
+    explicit priority order, independent of selector
+    specificity[15][49]. This is a game-changer for large projects: it
+    allows authors to, for example, put third-party library styles in a
+    lower layer and their app’s custom styles in a higher layer,
+    guaranteeing no amount of specificity from the library can override
+    the app’s CSS unless intended[15][50]. Layers directly address
+    problems that methodologies like BEM, ITCSS, and SMACSS tried to
+    solve by convention. (Developers no longer have to meticulously
+    craft selectors to avoid conflicts – they can use layers to
+    demarcate base styles, components, utilities, etc., in a structured
+    way.)
+
+-   2022 (Spec/Browsers): :has() selector – part of Selectors Level 4 –
+    ships in Safari 15.4 (Mar 2022) and Chrome 105 (Aug 2022)[51].
+    Firefox adds it in version 121 (Dec 2023)[52][53], achieving full
+    support. :has() is essentially a parent selector (or more broadly,
+    “relative selector”) that unlocks long-desired patterns. Authors can
+    now style a parent based on its children, like
+    .menu:has(.menu-item:hover) { /* highlight menu when item hovered */ },
+    without JS. It also enables selecting an element if next element has
+    a certain state (previous-sibling combinator via :has(+ ...)). The
+    community immediately seizes on :has() for things like form
+    validation styles (e.g. .form:has(input:invalid) { … }) and
+    simplifying markup (no need for extra wrapper just to style a parent
+    on child hover, etc.). Years of Stack Overflow questions about “CSS
+    parent selector” are finally answered.
+
+-   2022 (Spec/Browsers): Container Queries (Size Container Queries
+    Level 1) land in stable browsers: Chrome 105 and Safari 16 in late
+    2022, Firefox 110 in early 2023[54][20]. This is arguably the
+    biggest addition to responsive design since media queries. With
+    @container rules, a component can adjust its styles based on the
+    dimensions of a ancestor container rather than the viewport[21]. For
+    example, a card can be 2-column within a wide parent but stack to
+    1-column in a narrow sidebar, independent of the overall page
+    width[55]. Container query units (like cqw, container width percent)
+    also arrive, paralleling vw/vh units but for the container[56]. The
+    ability to write truly component-driven responsive styles closes a
+    long-standing gap that designers like Ethan Marcotte originally
+    worked around by combining fluid grids with global breakpoints. Now,
+    design systems can encapsulate adaptive behavior per component,
+    enabling more resilient layouts especially in complex web apps.
+
+-   2023 (Spec/Browsers): CSS Nesting (Level 1) is finalized and begins
+    shipping (Chrome 112, Safari 16.4, and Firefox 117 all in
+    2023)[57][58]. This allows authors to nest selectors in a way
+    similar to Sass/LESS:
+
+-   .nav { 
+          color: red;
+          li { list-style: none; }             /* .nav li */
+          li a { text-decoration: none; }      /* .nav li a */
+          &.active { border-bottom: 2px solid;}/* .nav.active */
+        }
+
+    Native nesting significantly cleans up CSS for authors, especially
+    when styling structured components, and makes porting Sass code to
+    pure CSS easier. It comes with some nuances (like requiring an & for
+    appended selectors and ensuring no ambiguity with indenting), but
+    effectively brings one of the last big Sass conveniences into CSS
+    proper. Teams can now decide if a preprocessing step is needed
+    purely on other factors, as CSS can do variables, calc(), nesting,
+    and more natively.
+
+-   Late 2023 (Spec): CSS Snapshot 2023 is published (Group Note), and
+    work is underway on CSS Snapshot 2024 (published Feb 2025)[59][60].
+    These documents enumerate over 100 CSS modules—some fully
+    Recommendation, many still Draft or Candidate but considered stable
+    in practice. They also outline the “CSS Levels and Snapshots”
+    approach: essentially a living standard cut into pieces. As of
+    Snapshot 2024, for example, CSS has no single version number;
+    instead, the snapshot is the reference list of all specs that
+    together define “CSS 2024”[12].
+
+-   2024–2025 (Outlook): CSS continues to evolve rapidly. Upcoming
+    features and focuses include: CSS Level 4 Selectors (with more :nth-
+    patterns and :has improvements), the proposed Scoped Styles (@scope
+    rule to limit where styles apply), further color module advancements
+    (CSS Color Level 4/5 with dynamic contrast functions and modern
+    color spaces), and continued refinement of the Cascade (like the
+    possibility of per-component style scoping and better tooling
+    integration). The CSS Working Group’s public focus is on
+    interoperability and filling remaining gaps—e.g., making form
+    controls more stylable across browsers, eliminating the last layout
+    quirks, etc.—as well as enhancements driven by real use-cases (e.g.,
+    features for container query style queries, or easier masonry
+    layouts). The thriving CSS community (blogs, conferences, the annual
+    “State of CSS” survey) and the WG’s openness (on GitHub) mean that
+    CSS’s future will continue to be shaped by a dialogue between spec
+    authors and developers.
+
+(The timeline above illustrates how CSS specification milestones,
+browser implementations, and community techniques interrelated. Now, we
+delve deeper into the formal spec history and the parallel practice
+history, before examining modern features in detail and reflecting on
+influences.)
+
+Formal History: Institutions, Specifications, and Browser Interoperability
+
+Origins: From Proposals to the CSS Working Group
+
+CSS was conceived in the mid-90s when the Web’s growth demanded a better
+way to style pages than font tags and ad-hoc HTML attributes. Håkon Wium
+Lie (then at CERN) drafted the first proposal for Cascading Style Sheets
+in October 1994[1], introducing the idea that styles from different
+sources (user, author, browser) should cascade with a defined priority.
+Around the same time, Bert Bos was developing the Argo browser with its
+own style language; after reviewing Lie’s draft, Bos joined forces with
+Lie to refine CSS[22]. Their proposals, along with influence from other
+attempts (Pei Wei’s Viola style sheets, the DSSSL standard, etc.),
+coalesced into a working draft for “CSS Level 1.”
+
+In 1995, the newly formed World Wide Web Consortium (W3C) saw the need
+for a formal style sheet standard. The HTML Editorial Review Board and
+later a dedicated CSS Working Group were established under the W3C. Lie
+and Bos were key members (Bos joined W3C to edit CSS specs). The CSS
+Working Group’s mission was (and remains) to develop CSS as a
+cross-browser, interoperable standard.
+
+CSS Level 1 was finalized relatively quickly and became a W3C
+Recommendation by December 17, 1996[5]. CSS1’s scope was modest: roughly
+50 properties covering typography, margins, borders, backgrounds, and a
+simple visual formatting model (the box model with
+content-pad-border-margin). It notably included the core cascade rules
+(origin and specificity) and the concept of selectors to target HTML
+elements (type, class, ID, and descendant selectors, with a single
+:hover as the first pseudo-class).
+
+CSS Level 2 (or just CSS2) was a more ambitious expansion, published in
+May 1998[6]. CSS2 introduced crucial capabilities like absolute and
+relative positioning, the concept of media-specific style sheets (print,
+screen, projection), advanced selectors (attribute selectors,
+:first-child pseudo-class), layout control (tables, more control over
+list styling), and downloadable fonts (an early version of @font-face).
+CSS2 was essentially trying to make CSS capable of controlling layout
+and presentation for complex documents, not just basic style. While the
+CSS2 spec was comprehensive, in practice it was too far ahead: browser
+support in the late 90s was incomplete.
+
+By 1998–1999, the CSS Working Group faced a dilemma: implementers were
+struggling with CSS2 bugs and not converging on full support. Rather
+than charge ahead to “CSS3”, the group chose to refine CSS2 into 2.1.
+CSS2.1 was a patient, iterative project; it removed features that had
+proven impractical (e.g. CSS2 had an experimental “paging” features for
+printed page breaks that were dropped) and adjusted definitions based on
+real-world feedback. CSS2.1 became a Working Draft in 1999 and went
+through multiple revisions. It wasn’t until 2011 that CSS2.1 was finally
+published as a W3C Recommendation, superseding CSS2[7]. This 10+ year
+process may seem glacial, but during that time CSS was solidifying: by
+2011, all major browsers (including IE9, the last in the old IE line)
+had reasonably interoperable implementations of the CSS2.1 subset.
+Achieving that interop was a major focus—test suites were developed, and
+the WaSP’s CSS Samurai (an advocacy group) pressured browsers to fix CSS
+bugs.
+
+Modularization and “No CSS4”
+
+While CSS2.1 was being finalized, the Working Group made a pivotal
+process change: modularization. The idea was to break the monolithic
+spec into modules that could level independently[8]. This had two
+benefits: specialists could work in parallel on different CSS features
+(e.g. a group focuses on Selectors, another on Layout, another on Fonts)
+and each module could advance to Recommendation on its own timeline. By
+the early 2000s, draft modules for many CSS3 features emerged:
+Selectors, Text, Multi-column layout, SVG integration, etc.
+
+Crucially, the WG abandoned the notion of a single version number for
+CSS beyond 2.1. Developers commonly talked about “CSS3” circa 2005–2010,
+referring to new capabilities (rounded corners, shadows, etc.), but in
+W3C terms “CSS3” just meant the set of modules at Level 3. There would
+be no all-encompassing CSS3 spec, and indeed no CSS4 at all[24][10].
+Instead, each module would eventually have Level 4, Level 5, and so on.
+As Rachel Andrew famously explained: “There is no CSS4 — there is only
+CSS, evolving module by module.”[61]. For example, we had Selectors
+Level 3 (completed 2005, Recommendation) and later Selectors Level 4
+(which adds :is(), :where(), :has(), etc., and as of 2025 is in
+Candidate Recommendation). Selectors Level 4 is sometimes informally
+called “CSS4 Selectors,” but it’s not part of a mythical CSS4 – it’s
+just the next level of that one spec[11]. Some modules, like Color, have
+even reached Level 5 (to incorporate new color spaces). Meanwhile,
+entirely new concepts start at Level 1 – e.g. CSS Grid Layout
+Level 1[25].
+
+The CSS Snapshot documents, first compiled around 2007 and now released
+roughly yearly, formalize this modular view for implementers. For
+instance, CSS Snapshot 2024 “collects together all the specs that form
+the current state of CSS as of 2024”[12]. It categorizes modules by
+stability (those in Recommendation or Candidate Rec vs. still in draft)
+and explicitly notes that these are not introductions of a “CSS 2024”
+version, but a reference profile[12][62]. The Snapshots also clarify the
+status of CSS Levels and the expectation that new CSS = CSS3+ (i.e.,
+Level 3 and up modules). The decision to avoid a CSS4 label was
+deliberate to prevent the kind of discontinuity we saw between CSS2 and
+the “CSS3” era – instead, CSS is an ever-growing, backward-compatible
+continuum. (Marketing-wise, this confused some developers who kept
+waiting for CSS4; the WG responded with blogs and talks – “not CSS4, but
+level 4 of individual specs”[11].)
+
+From an institutional perspective, the CSS Working Group (which includes
+members from all major browser vendors and invited experts) continues to
+drive CSS forward. It operates by consensus and the W3C Process
+document, which means specs go through Stages: First Public Working
+Draft, Working Drafts, Candidate Recommendation (when they encourage
+implementation and testing), and then Recommendation (mature standard).
+In 2016, W3C introduced the idea of “Candidate Recommendation Snapshots”
+vs. “Living Standards”. CSSWG opted to periodically snapshot specs as CR
+when they’re reasonably stable, even if they might later get more
+features. This is why Flexbox never was called Recommendation but had CR
+Snapshot in 2017[63] – the group shifted to a living standard model
+(similar to WHATWG HTML), meaning an implementer should follow the
+Editor’s Drafts and Snapshots rather than wait for a Recommendation
+stamp that might come much later if at all.
+
+Browser Engines and Interoperability Culture
+
+On the implementation side, CSS’s history is intertwined with browser
+engine competition and collaboration:
+
+-   In the late 90s, there were two main engines: Microsoft’s Trident
+    (in Internet Explorer) and Netscape’s Gecko (open-sourced as
+    Mozilla). Opera’s Presto engine (and its predecessor Elektra) was a
+    third player punching above its weight with good standards support,
+    and Apple’s WebKit (forked from KDE’s KHTML around 2002) arrived
+    with Safari. Each engine had its own priorities and bugs. Interop
+    was poor – web developers coined terms like “IE6 bugs” vs “Firefox
+    bugs” and used CSS hacks (deliberate malformed CSS that only affect
+    one engine) to feed different styles to each.
+
+-   Vendor CSS Extensions: To experiment with new features without
+    committing to spec changes, browsers introduced vendor-prefixed
+    properties. This started in the early 2000s. For example, early CSS3
+    drafts had properties like border-radius, but before they were
+    standardized, Mozilla implemented it as -moz-border-radius and
+    WebKit as -webkit-border-radius. The intent was to let users try
+    features and give feedback while making clear it’s not final. This
+    helped drive CSS3 forward (e.g. web developers fell in love with
+    rounded corners and thus the standard property made it through).
+    However, by 2008–2012, the web was full of -webkit-gradient,
+    -moz-transition, etc., and mobile WebKit’s dominance led some sites
+    to use only -webkit- prefixes (ignoring Opera or Firefox). In the
+    extreme, circa 2012, some mobile sites locked out Internet Explorer
+    by using @media screen and (-webkit-min-device-pixel-ratio:0) hacks
+    or only providing -webkit CSS. This scenario prompted serious
+    rethinking: Microsoft and Mozilla even considered supporting certain
+    -webkit- prefixed properties to remain compatible[64].
+
+-   Evergreen browsers: Around 2010–2012, the browser update model
+    shifted. Google Chrome introduced rapid releases (6-week cycle) and
+    auto-updates. Firefox switched to a similar cadence. This meant new
+    CSS features could roll out faster and, importantly, bug fixes and
+    interoperability improvements could reach users quickly. Internet
+    Explorer, which had major releases years apart, was left as the
+    laggard. In 2015 Microsoft replaced it with Edge (EdgeHTML engine
+    initially, then Chromium/Blink in 2019) which also auto-updated.
+    Safari, while tied to OS updates, also moved to a yearly upgrade
+    with interim updates. The result is that by the late 2010s, all
+    major engines update frequently, reducing the window where
+    developers have to support older, non-compliant implementations.
+
+-   Engine consolidation: Another big shift was consolidation: Opera
+    dropped Presto and adopted Blink (the fork of WebKit started by
+    Google in 2013) – so Opera, Chrome, Edge (after 2019), Samsung
+    Internet, etc., all share a common core. WebKit remains in Safari
+    (and technically in many iOS browsers, as Apple requires), and Gecko
+    in Firefox. We went from five+ independent engines in 2005 to
+    essentially three in 2025. Fewer engines makes it somewhat easier to
+    achieve interoperability (fewer independent implementations to
+    coordinate), though it also raises concerns about reduced
+    competition.
+
+-   Interop Initiatives: The CSS Working Group for years has hosted a
+    Test Suite where each spec feature has test cases for browsers to
+    run. In practice, these became more useful after engines adopted
+    automated testing (around 2010+). Additionally, cross-vendor
+    collaborations like The HTML5/CSS3 Acid Tests, Web Platform Tests
+    (WPT) repository, and more recently Interop 2021/2022/2023 have
+    targeted interoperability pain points. By focusing on specific
+    metrics (e.g. all engines passing certain grid-layout edge case
+    tests), these initiatives have markedly improved consistency. An
+    example: the flexbox spec had ambiguities that led to different
+    behavior in Firefox vs Chrome for auto-height flex containers;
+    coordinated effort resolved that by clarifying the spec and aligning
+    implementations.
+
+-   Evergreen standards: The CSSWG works closely with browser teams such
+    that many specs are effectively “living”. The group publishes on
+    GitHub, accepts contributions, and often spec changes are
+    accompanied (or even preceded) by prototype implementations in
+    browsers (behind flags). It’s notable that by the time a feature
+    hits a W3C Candidate Recommendation, it’s often already in multiple
+    browsers – unlike in the 90s when a Recommendation might be
+    aspirational with no complete implementation yet.
+
+A case study in spec-browser interplay is CSS Grid: Microsoft
+implemented a version of grid in IE10 (2012) based on an early draft,
+but rather than ship it universally, it was behind -ms- prefix and
+partially experimental. They collaborated with the CSSWG and other
+browser vendors (Google, Mozilla) to refine the spec; by 2015 a unified
+grid model was agreed. All engines implemented that, and in 2017 they
+coordinated release. The prefixed implementations were removed in favor
+of the standard one. This process – early experimentation with prefixes
+or flags, then convergence – has played out with many features (flexbox,
+variables, etc.).
+
+In summary, browser interoperability went from a serious obstacle (early
+2000s) to a driving goal. Today, the CSSWG works hand-in-hand with
+WHATWG and the browser makers in the open. They even use Interop
+dashboards to track progress on flexbox, grid, etc. The upshot for
+developers is a far more stable target: if your CSS works in one modern
+engine, it likely works in the others, modulo a few edge quirks. That
+wasn’t true in 2005. We’ve gone from “best viewed in IE6” vs “best in
+Netscape” to a relatively unified platform.
+
+Formal Spec Phases Recap:
+
+-   CSS1 and CSS2 era (1996–2001): Monolithic specs defined large
+    batches of features; initial adoption slow, but established CSS as a
+    core web technology. The CSS Working Group founded and seeded by
+    pioneers like Lie, Bos, and representatives from browser companies.
+-   CSS2.1 and stabilization (2002–2011): Retrenchment to get
+    interoperability. The WG’s effort here was crucial; without it, CSS
+    might have fragmented. By pinning down CSS2.1, they gave a solid
+    foundation for CSS3.
+-   CSS3 modular era (2001–present): Dozens of modules allow parallel
+    development. Not all modules progressed evenly – some (like
+    Selectors, MQ) finished quickly; others (like Fonts, Flexbox, Grid)
+    took years of back-and-forth. The absence of a “CSS4” label
+    sometimes confused developers, but the WG consistently messaged that
+    modules level up independently[24].
+-   Snapshots and Living Standard (2015+): The CSSWG adopted a
+    living-standard approach for CSS. By continuously updating Editor’s
+    Drafts and using snapshots as reference points, they ensure CSS can
+    evolve without waiting a decade for a big version. In effect, every
+    year’s Snapshot is “CSS Now.” For example, CSS 2024 means the state
+    of CSS as per the 2024 Snapshot (which includes things like subgrid,
+    cascade layers, etc., since those stabilized by then).
+
+In the next section, we shift from the formal timeline to how CSS was
+actually used in practice by web designers and developers in each era –
+highlighting how limitations or features of CSS influenced particular
+techniques, and vice versa.
+
+Informal History: How Developers Actually Wrote CSS (2000–2020)
+
+While the specs evolved, web developers often couldn’t wait – they
+invented techniques to get the layouts and designs they needed with the
+CSS (or lack thereof) available at the time. We outline key eras of CSS
+practice, each characterized by certain dominant techniques, frameworks,
+or philosophies:
+
+Early Standards Adoption (2000–2006): CSS for Styling, Layout via Hacks
+
+In the early 2000s, CSS was widely used for styling text and basic
+presentation, but not yet trusted for full-page layout. Many sites still
+relied on HTML tables (sometimes invisible nested tables) to achieve
+multicolumn layouts, because CSS support was inconsistent and developers
+were more familiar with tables from the 90s. The transition was gradual:
+
+-   CSS for typography: By 2000, virtually everyone used CSS to set
+    fonts, colors, link styles, etc. This was the straightforward use of
+    CSS1 that worked in IE5, Netscape 6, etc. External style sheets
+    allowed a separation of content and presentation which was
+    beneficial even if layout wasn’t done in CSS.
+
+-   Layout with floats and positioning (the “holy grail”): CSS2
+    introduced float and position, which in theory could replace tables.
+    The simplest layouts (e.g. a two-column page with a left nav and
+    main content) could be done by floating a sidebar. However, early on
+    this had challenges: IE5/6’s float model had bugs (the clearfix hack
+    was developed to force containers to wrap floated children by using
+    an empty “clear” element or special CSS with :after pseudo-element
+    plus content: ""[19]). Positioning (position:absolute) could do
+    multi-column layouts but required knowing fixed pixel positions,
+    making flexible or fluid designs hard and leading to overlap issues
+    on smaller screens or with text zoom.
+
+-   CSS Zen Garden (2003): As noted, this site was pivotal. It provided
+    a single HTML file with semantic markup, and invited designers to
+    submit CSS style sheets that skin it in wildly different ways. The
+    results were gorgeous designs with pure CSS. Importantly, Zen Garden
+    relied on then-modern techniques: clever use of background images
+    (often for decorative flourishes or non-rectangular shapes), plenty
+    of float for columns, negative margins to pull content into
+    overlapping arrangements, etc. It proved that “boxy” was not the
+    only outcome of CSS (contrary to a common belief then)[3][65]. After
+    Zen Garden, even skeptics saw that CSS-based layouts could be
+    artistic and varied.
+
+-   Browser quirks and conditional CSS: During this period, an enormous
+    amount of knowledge was built around specific browser behaviors.
+    Sites like Positioniseverything.net documented float bugs (e.g. the
+    “3px jog” bug in IE6 when an element is floated and margin interacts
+    in a certain way). Developers would use conditional comments (IE’s
+    proprietary HTML comments to target IE only) to load an extra
+    IE-specific stylesheet to work around bugs. Or they’d use the
+    so-called “star-hack” where writing *_width: 100px would be ignored
+    by standards browsers but read by IE5/6. These hacks were necessary
+    to achieve pixel-perfect layouts across browsers.
+
+-   Reset CSS: Early on, people noticed that each browser had its own
+    default margins, padding, line-heights, etc., causing
+    inconsistencies. In 2004, Eric Meyer released a “Reset CSS” that set
+    all elements’ margins, padding, border to zero, and many elements to
+    display: block or other neutral defaults. Developers would include
+    reset.css at the top of their stylesheet to neutralize differences,
+    then build their own styles from scratch. This was popular through
+    the late 2000s. (Later, in 2011, normalize.css would challenge the
+    all-or-nothing reset approach by preserving useful defaults[66].)
+
+In summary, 2000–2006 was about learning to use CSS properly. Teams
+separated style from structure, improved accessibility and
+maintainability, but had to work around layout limitations. By 2006,
+most forward-looking sites were using pure CSS for layout (especially
+after IE7 in 2006 fixed many CSS bugs, dropping the biggest barriers).
+The era of <q>table layouts</q> was closing, though legacy sites and
+older developers held on a bit longer.
+
+Float-Based Layouts and Grid Frameworks (2007–2011)
+
+As CSS2.1 became well-supported (IE7+Firefox2+Safari3 all reasonably
+compliant by ~2008), CSS layout using floats became reliable. A clear
+pattern emerged for multi-column design: using a container, inside it
+floating columns left or right, and using percentages for widths to
+create fluid grids, or fixed pixel widths for fixed grids. However,
+writing these from scratch for each project was tedious. Enter the CSS
+grid frameworks:
+
+-   Blueprint CSS (2007): Blueprint combined a CSS reset, a typography
+    preset (optimized for baseline grids and legibility), and a grid
+    system[16][67]. The grid used a 24-column layout with column classes
+    like .span-6 or .span-12. Developers would add these classes to
+    their HTML (e.g., <div class="span-6 last">Sidebar</div>). Blueprint
+    also introduced the idea of a global .container class that centers a
+    layout and sets default width. Pros: it saved time (no need to write
+    float CSS, just add classes), and ensured a consistent grid and
+    vertical rhythm. Cons: the HTML became littered with presentation
+    classes (some argued this was not “semantic”). But many in the
+    industry accepted this trade-off for the convenience and reliable
+    results.
+
+-   960.gs (2008): As the name suggests, this framework assumed an
+    overall page width of 960px (which divides nicely into columns for
+    1024px monitors). It offered 12 or 16 column variants. 960.gs was
+    even simpler than Blueprint – it focused purely on grid classes like
+    .grid_4 or .prefix_2 (to offset columns). It gained huge popularity
+    in theme development (e.g., WordPress themes, template marketplaces)
+    because it was easy to grasp. Many templates circa 2008–2012 were
+    “960.gs inside”.
+
+-   Others: The YUI Grids CSS (from Yahoo) also provided a flexible grid
+    (and at small file size). Skeleton (2011) was a lightweight
+    responsive framework that combined a grid with basic styles,
+    targeting the emerging mobile-first approach. Foundation (2011) by
+    ZURB and Bootstrap (2011) by Twitter each included grid systems as
+    part of a larger components framework.
+
+The prevalence of these frameworks meant that by 2010, instead of
+writing CSS floats manually, many developers would include a framework
+and apply the grid classes in their markup. This sped up development but
+had an interesting side effect on CSS practices: it normalized the idea
+of utility classes (like .clearfix or grid classes) and made heavy use
+of classes for layout acceptable. This was almost opposite to the early
+2000s ideal of “semantic HTML” where one might have tried to avoid
+classitis. The pendulum swung towards pragmatism – better to have
+maintainable, framework-friendly markup than to stubbornly keep HTML
+class-free.
+
+A typical float grid usage example (circa 2010):
+
+    <div class="container">
+      <div class="grid_8 alpha">Left column content</div>
+      <div class="grid_4 omega">Right sidebar</div>
+    </div>
+
+Here .grid_8 and .grid_4 come from 960.gs (if 12-column grid, 8+4 = full
+width), and alpha/omega classes mark first and last columns to remove
+side margin. The developer writes almost no custom CSS for layout – they
+rely on the framework’s definitions.
+
+The Clearfix: One must mention clearfix – since floated columns don’t
+naturally expand their parent’s height, the parent container often
+collapsed. The “clearfix hack” introduced an elegant CSS-only solution:
+a pseudo-element that clears floats. By adding .clearfix class (with
+style like
+.clearfix::after { content:""; display: table; clear: both; }), one
+could ensure the container wraps its floats without extra
+markup[68][69]. Frameworks built this in so developers would just add
+.container (which included clearfix automatically).
+
+Problems in this era: While floats worked, they were not intended for
+elaborate grid layouts. They had drawbacks: equal-height columns
+required trickery (like Faux Columns—using a background image on the
+container to simulate equal height). Source order was tied to visual
+order (you couldn’t easily rearrange columns without changing the HTML,
+whereas later flexbox would allow reordering). Also, floats were
+originally meant for wrapping text around images, not entire site
+layout; so, some CSS purists disliked using them so extensively. But
+until flexbox arrived (IE10’s initial partial flexbox in 2012,
+widespread by ~2014), floats were the best we had.
+
+Polyfills and IE8: Another challenge was older IE. IE6/7 had limited
+selectors support, no media queries, etc. Respond.js and similar scripts
+were used to polyfill media queries in IE6-8, enabling responsive grids.
+HTML5Shiv polyfilled HTML5 elements in IE8. So a typical site might have
+a modern CSS with media queries and then some JS to fill the gaps for
+old IE. This complexity persisted until IE8 faded from use around 2013.
+
+In summary, 2007–2011 was the golden age of float-based grid frameworks.
+They brought a degree of standardization: multiple frameworks using
+similar class names and concepts meant developers hopping between
+projects found familiarity. And they indirectly led to the mindset that
+would embrace flexbox and grid once those were available natively (e.g.,
+Bootstra’s grid switched from floats to flexbox in 2015 with minimal
+upheaval to how developers used it).
+
+Responsive Web Design & Mobile-First (2010–2013)
+
+Ethan Marcotte’s Responsive Web Design article (May 2010)[30] ushered in
+a fundamental shift: instead of creating separate “mobile sites” (like
+m.example.com) with their own simplified CSS, developers were encouraged
+to craft one fluid design that adapts via CSS media queries. Key
+components of RWD included:
+
+-   Fluid Grids: Marcotte advocated designing layouts in terms of
+    percentages relative to a flexible container, rather than fixed
+    pixels[30]. This built on prior concepts of elastic/flexible design,
+    but combined with media queries it allowed layouts to stretch until
+    a breakpoint, then reflow.
+
+-   Flexible Images: Using CSS (max-width: 100%) to ensure images shrink
+    with their containers to avoid breaking the layout on small
+    screens[70][71].
+
+-   Media Queries: CSS could apply different styles at different
+    viewport widths. The canonical example: switching from multi-column
+    to single-column at a certain max-width. Marcotte’s article used
+    @media screen and (max-width: 600px) to linearize columns into
+    full-width blocks[72][73]. Media queries essentially allowed
+    “conditional CSS” based on device charateristics, something
+    impossible in pure CSS before.
+
+Responsive design was quickly embraced because mobile web usage was
+exploding after 2010 (with iPhone and Android). It no longer made sense
+to design only for 1024px-wide screens. RWD promised “one codebase,
+multiple devices.”
+
+Mobile-First: In 2011/2012, another idea took hold: build the CSS for
+the smallest screens first, then add enhancements for larger screens
+using min-width media queries (as opposed to designing desktop then
+overriding with max-width). This “mobile-first” approach was advocated
+by Luke Wroblewski and embraced by Bootstrap 3 (2013), Foundation, and
+others. The rationale: mobile constraints are fundamental, and many
+sites saw mobile traffic surpass desktop, so start with that base.
+
+Framework response: Bootstrap 2 (2012) added a “responsive” option –
+basically an extra CSS file with media queries to make the grid stack on
+smaller screens. Bootstrap 3 (2013) went fully mobile-first: its grid
+classes (like .col-xs-6 .col-md-4) were redefined to use min-width
+breakpoints and stack naturally on extra-small screens by
+default[74][75]. Foundation did similarly. This toolkit support greatly
+helped developers adopt responsive design without deep CSS expertise –
+you’d include the framework and use the grid as instructed, and voila,
+it was responsive.
+
+Media Queries Standardization: Though media queries were drafted in CSS3
+earlier, it’s worth noting W3C’s Media Queries Level 3 became a W3C
+Recommendation in June 2012[31], just as RWD was peaking. By then all
+major browsers (even IE9 in 2011) supported @media rules. The
+standardization in 2012 was almost a formality – the horse had left the
+barn, but it confirmed media queries as stable tech. MQ Level 4 followed
+with more features (2017–2020, adding hover capability queries, etc.),
+reflecting new needs like responsive design for input modes, etc.
+
+Challenges in RWD era: Responsive design introduced complexity: you had
+to test across a continuum of sizes, not just a fixed set of
+breakpoints. CSS grew larger with many media-query blocks. Managing
+these cascades became tricky – which is one reason methodologies like
+BEM or SMACSS gained importance (to organize CSS so that overrides at
+different breakpoints remain maintainable). Another challenge was images
+– delivering appropriately sized images was beyond pure CSS (it led to
+HTML’s srcset in 2014). But as far as CSS history, RWD cemented media
+queries and changed layout thinking from fixed grids to relative,
+flow-based grids.
+
+Notable Controversy: One debate was responsive vs. adaptive (media
+queries vs. device-specific sites). Some large sites initially preferred
+separate mobile sites for performance reasons (serving leaner HTML/CSS).
+But as responsive techniques improved (and JS could conditionally load
+things), the unified approach won out broadly. By mid-2010s, clients
+expected responsive sites as the norm. This cultural shift in web
+development is one of CSS’s biggest success stories – it empowered
+designs that could handle unknown future devices elegantly, showcasing
+CSS’s inherent flexibility.
+
+Preprocessors: Sass, LESS, and Stylus (2006–2014)
+
+As project CSS files grew, developers found themselves wanting features
+that programming languages had – especially variables, functions, and
+modularity. Preprocessors stepped in:
+
+-   Sass (2006): The first major preprocessor, created by Hampton Catlin
+    (initially as a custom Ruby on Rails plugin). Early Sass had a very
+    concise syntax (no braces or semicolons, relying on indentation,
+    similar to Haml). In 2010, Sass introduced the more CSS-like SCSS
+    syntax to broaden appeal. Sass provided:
+-   Variables (e.g. $primary-color: #5B83AD; and then use $primary-color
+    in styles).
+-   Nested selectors, allowing more organized style sheets (we saw an
+    example earlier – this maps to cleaner CSS structure).
+-   Mixins (reusable chunks of CSS, possibly with parameters).
+-   Functions and operations (math on values, color manipulation like
+    lighten/darken).
+-   Imports that worked around CSS’s lack of variables by letting you
+    split into multiple .scss files and compile into one CSS (which
+    avoided extra HTTP requests in pre-HTTP2 days).
+
+Sass quickly gained a following, particularly in Rails and other backend
+communities, for making CSS less repetitive and more maintainable.
+
+-   LESS (2009): Created by Alexis Sellier (applied as a JS library
+    originally), LESS had a syntax very close to CSS (like SCSS did).
+    One novel idea was you could include less.js in the browser to
+    compile on the fly – not great for production but made it easy to
+    play with. LESS’s feature set was similar: variables (denoted with
+    @var), nesting, mixins (including parametric mixins which are like
+    functions), and operations. LESS was used by early Bootstrap (v1 and
+    v2 were LESS-based before Bootstrap switched to Sass in v3).
+
+-   Stylus (2010): A preprocessor in Node.js, championed by TJ
+    Holowaychuk. It offered a very flexible syntax (optionally no
+    braces, similar to original Sass, but with even more shorthand
+    possibilities). Stylus found use in some Node-heavy stacks and had
+    features like plugins, but was less popular than Sass/LESS.
+
+These preprocessors required a build step – a major shift. It meant
+front-end devs started routinely running command-line tools (via Ruby,
+then Node, then tools like Grunt/Gulp and later webpack). By 2013,
+including a Sass compilation in your workflow was common in front-end
+projects. This changed team dynamics: to edit CSS, a developer needed to
+follow the preprocessor syntax and build pipeline, but the payoff was
+easier theming and code reuse.
+
+Impact on CSS development:
+
+-   Preprocessors encouraged a modular architecture. Instead of one huge
+    CSS file, you could have partials for each component and @import
+    them in your main .scss. This mapping of components-to-files was a
+    precursor to more formal componentization (and to CSS Modules,
+    Shadow DOM styles, etc.).
+-   They also popularized concepts like mixins for vendor prefixes. For
+    example, writing:
+
+-   @mixin border-radius($r) {
+          -webkit-border-radius: $r;
+          -moz-border-radius: $r;
+          border-radius: $r;
+        }
+        .button { @include border-radius(4px); }
+
+    allowed central management of prefix logic. Autoprefixer later
+    obviated a lot of this, but preprocessor mixins were the initial
+    solution.
+
+-   Nesting in Sass/LESS allowed authors to mirror HTML structure in
+    CSS. This improved readability, but if overused could lead to very
+    deep selectors and high specificity. Methodologies like BEM actually
+    cautioned against over-nesting, recommending only one level of
+    nesting for modifiers or child elements. Nonetheless, devs loved
+    nesting for scoping styles to a component class, e.g.:
+
+-   .nav { 
+          ul { list-style: none; }
+          li { display: inline-block; }
+          a { color: $link-color; &:hover { color: $link-hover; } }
+        }
+
+    which compiles to
+    .nav ul {…} .nav li {…} .nav a {…} .nav a:hover {…}. This pattern of
+    a top-level class (nav) containing all related rules became a norm.
+
+-   Community & ecosystem: Sass in particular had a robust community,
+    with extensions like Compass (which added pre-built mixins for
+    gradients, sprites, etc.). By 2014, Sass was so prevalent that many
+    job listings for front-end roles required Sass knowledge. The CSSWG
+    took notice; features like custom properties and native nesting were
+    in a sense an attempt to capture some of Sass’s utility in the
+    official language.
+
+The preprocessor era arguably peaked around 2013–2015. After that,
+PostCSS and build tools like webpack allowed more plugin-based
+processing (e.g. using Autoprefixer, or using PostCSS plugins for
+nesting and variables without fully switching to Sass syntax). But even
+in 2025, many projects still use Sass (Dart Sass now, since LibSass/C++
+was deprecated) – especially large legacy codebases or where team
+preferences lean that way. The influence of Sass/LESS is seen in
+virtually every modern CSS feature addition.
+
+Scalable CSS Architectures: OOCSS, BEM, SMACSS (2009–2014)
+
+As teams collaborated on larger front-ends, issues like naming
+conflicts, specificity fights, and code bloat became serious. Several
+thought leaders developed methodologies to impose order. We’ve touched
+on them in timeline, but here we compare their core ideas:
+
+-   OOCSS (Object-Oriented CSS) – Nicole Sullivan, 2009. Core
+    principles: separate structure and skin (i.e., have base structural
+    classes that can be reused, and then theming classes to skin them
+    differently) and separate container and content[18]. In practice,
+    this meant designing CSS components as “objects” – for example, the
+    media object (image + text block) could be an object with classes
+    like .media, .media-img, .media-body which are reused in various
+    contexts (sidebar, comment list, etc.). OOCSS encourages many small,
+    reusable classes rather than huge context-specific selectors.
+    Sullivan also advocated for shallow selectors (avoid location-based
+    qualifiers like #sidebar .nav li a that depend on specific
+    nesting)[76][77]. Instead, an object class should work anywhere on
+    the page without being tied to a particular parent. This increases
+    reuse and predictability[78]. OOCSS also implicitly promoted adding
+    extra semantic classes to the HTML when needed to avoid deep
+    selectors – a shift from earlier “semantic HTML” dogma where extra
+    div or span was frowned upon. With OOCSS, if an extra wrapper makes
+    CSS easier, do it (just give it a meaningful class).
+
+-   BEM (Block-Element-Modifier) – Yandex team, formalized around
+    2010–2012. BEM is both a naming convention and a componentization
+    philosophy. A Block is an independent component (e.g. menu, card,
+    form). An Element is a part of a block, identified by a double
+    underscore in class name (e.g. menu__item, menu__link are elements
+    of menu block). A Modifier is a variant or state of a block or
+    element, identified by a double hyphen (e.g. menu--highlighted or
+    menu__item--selected). For example:
+
+-   <ul class="menu menu--primary">
+          <li class="menu__item menu__item--active">
+             <a class="menu__link" href="/">Home</a>
+          </li>
+        </ul>
+
+    BEM’s benefits: by enforcing unique class names for every piece, you
+    virtually eliminate collisions. Also, CSS selectors become very flat
+    (.block__element--modifier as a single class selector perhaps) which
+    avoids specificity issues – everything is a class with the same
+    weight. It also encourages thinking in terms of components (blocks)
+    that can be composed. Many large codebases (e.g. at Yahoo, Yandex,
+    later Google) adopted BEM because it scales well with many
+    developers – you can see from a class name exactly what it’s related
+    to. The downside is verbose HTML and some learning curve, but it’s
+    widely considered effective. The Chrome DevTools team actually built
+    a feature to group by BEM structure in the Styles pane, indicating
+    its influence. Cascade layers (2022) even cited BEM as a prior art
+    used to manage specificity[15][19].
+
+-   SMACSS (Scalable and Modular Architecture for CSS) – Jonathan
+    Snook, 2011. SMACSS isn’t a naming scheme per se, but a way to
+    categorize your CSS rules into: Base (defaults for elements), Layout
+    (grid or page layout styles, often with classes like .l-header
+    etc.), Module (reusable component styles, like a media object or
+    card, similar to blocks in BEM), State (styles for different states
+    of modules, often using .is-active type naming or
+    .module--disabled), and Theme (if theming is needed). SMACSS
+    encourages writing CSS in these categories and possibly prefixing
+    classes to indicate category (some use l- for layout, js- for
+    classes used by JS for behavior, etc., though that’s more of a BEM
+    extension idea). The main goal was to create predictability and
+    prevent styles from unintentionally leaking. For example, layout
+    styles might be higher-level and you ensure module styles don’t
+    depend on which layout they’re in. SMACSS was more of a guide than a
+    strict spec; many of its ideas overlap with OOCSS and BEM (Snook
+    cites OOCSS as inspiration). It’s a good conceptual framework for
+    splitting a large CSS into manageable concerns.
+
+These methodologies share common themes: - Use consistent naming to
+indicate structure. - Prefer class-based styling over tag selectors or
+ids for predictability. - Avoid deep nesting in CSS – favor multiple
+classes on an element rather than descendant selectors crossing
+component boundaries (this prefigures the idea of “encapsulation”). -
+Manage state via classes (like .is-open on a modal) rather than using
+selectors like :hover for everything or, worse, scripting style changes.
+
+A quick comparison scenario: say you have a button that in some places
+should be big and blue, other places small and gray. - Without
+methodology, one might have .sidebar .button { ... } vs
+.header .button { ... } overrides – location-based. - In OOCSS/BEM,
+you’d likely have a base .button object, and then modifiers like
+.button--large, .button--altColor. - HTML might be
+<button class="button button--large button--altColor">. - CSS would be
+.button { ...base styles... } .button--large { font-size: 1.5em; } .button--altColor { background: gray; }.
+This way, context doesn’t matter; any button can combine modifiers as
+needed. - This approach improves reuse and avoids needing separate CSS
+per context.
+
+One could argue these methodologies “worked around” missing language
+features: e.g., if there were native style scoping, perhaps we wouldn’t
+need such strict naming. Regardless, they greatly influenced how CSS was
+written in the 2010s. Frameworks like Bootstrap adopted some of these
+ideas (Bootstrap 4 moved toward a BEM-like naming). Teams developed
+internal style guides combining these approaches.
+
+PostCSS and the Rise of Build Tools (2013+)
+
+As mentioned earlier, PostCSS (first released 2013) is a
+JavaScript-based CSS processing framework. It allowed developers to
+write plugins to transform CSS, which led to a plethora of targeted
+tools: - Autoprefixer (2013) being the prime example: it uses Can I Use
+data to add only the necessary vendor prefixes to your CSS[13]. After
+Autoprefixer became common (by 2014, many had integrated it), developers
+stopped writing -webkit- manually. This arguably freed the CSSWG and
+browser vendors to experiment without fearing developer fatigue from
+prefixes – because a build tool would handle it. Google Web Fundamentals
+in 2014+ actually recommended always using Autoprefixer instead of
+hand-coding prefixes.
+
+-   Polyfill plugins: e.g. postcss-nesting, postcss-custom-properties
+    allowed developers to use future CSS syntax in today’s code, and
+    then the build transforms it for compatibility. This blurred the
+    line between preprocessor and postprocessor – you could author in
+    “almost CSS” (like CSS with nesting, which wasn’t supported natively
+    then) and get standard CSS out.
+
+-   Linting and Analysis: PostCSS also enabled tools like stylelint (a
+    CSS linter) to easily parse CSS and enforce rules, and css-mqpacker
+    to combine media queries, etc.
+
+The broader build tool chain (Grunt, then gulp, then webpack) made CSS a
+first-class citizen in the build. This is where modularization
+approaches thrived: e.g., with webpack you could import CSS files from
+JS, enabling CSS Modules approach where each component’s CSS is locally
+scoped by tooling (class names get hashed). By 2016, some projects,
+especially in React world, were doing “CSS-in-JS” where CSS is literally
+authored as JS objects or template literals, but other projects stuck
+with “CSS Modules” which is more like an evolution of BEM via tooling
+(the tool ensures no two .className collide by renaming them uniquely).
+
+Effect on practice: It became rare to write plain CSS without a build
+step. Even if one writes standard CSS, usually it goes through PostCSS
+for autoprefixer at least. The availability of these tools allowed
+adoption of new CSS features faster – e.g., developers could start using
+CSS variables in 2015 in some cases by using a PostCSS plugin that
+replaces them for IE, etc., although many just waited for native
+support.
+
+PostCSS also facilitated frameworks like Tailwind: Tailwind’s build
+process uses PostCSS to purge unused classes and combine configuration
+with CSS generation. This heavy automation would be impractical without
+a robust CSS AST processor.
+
+In essence, by the late 2010s, CSS authorship for professional projects
+was almost always meta-CSS (whether Sass, PostCSS enhanced, or
+CSS-in-JS). The learning curve for CSS hence included learning these
+tools. Some argue this complexity drove people toward CSS-in-JS (since
+if you’re bundling anyway, maybe manage it all in JS). Others maintained
+a simpler pipeline (Sass + Autoprefixer remains a common setup, which is
+fairly straightforward).
+
+To reflect: the informal history from 2000 to 2020 shows a pendulum: -
+Early 2000s: Not enough CSS features – creative hacks and reliance on
+older methods. - Late 2000s: Embracing CSS for everything (tableless
+layouts), but struggling with scale – hence frameworks and resets. -
+Early 2010s: Rapid expansion of tools and methodologies to cope with
+large codebases and multiple devices – preprocessors, responsive
+techniques, naming conventions. - Late 2010s: Integration of CSS with
+build systems and JS, leading to new paradigms like utility-first and
+component-scoped styling.
+
+Each stage also fed back into CSS specs: for example, variables and
+nesting made it into CSS largely because preprocessors proved their
+utility. Likewise, the desire to avoid global conflicts (as seen in BEM)
+influenced proposals for Shadow DOM and @scope. The next section will
+explore Modern CSS (2017–2025) features – essentially the formal answers
+to many of these historical pain points.
+
+Modern CSS (2017–2025): The Feature-Rich Era
+
+The period from around 2017 to 2025 has been extraordinary for CSS. A
+slate of new features, some of which had been in incubation for years,
+finally shipped across browsers. These features fundamentally change
+what CSS can do and often simplify or eliminate old workarounds. Let’s
+examine several major ones, with context of their spec history, browser
+support milestones, and most importantly how they changed CSS practice:
+
+Flexbox and Grid: Modern Layout Systems
+
+Flexbox (CSS Flexible Box Layout Module Level 1): Although flexbox’s
+first draft dates back to 2009, its final form was largely set by 2012
+(a rewrite that changed syntax from display: box to display: flex and
+revamped many details). By October 2017, Flexbox was a Candidate
+Recommendation snapshot[40] and widely implemented interoperably.
+Chrome, Safari, and Firefox had unprefixed flexbox by 2014; Edge (the
+new IE) by 2015. Flexbox provides a one-dimensional layout mechanism,
+great for distributing space in a row or column.
+
+Why it changed practice: Flexbox solved everyday problems that were
+awkward with older CSS: - Centering an element (horizontally and
+vertically) inside a container became trivial (just
+display: flex; align-items: center; justify-content: center;) –
+something infamously hard with floats or even absolute positioning. -
+Making equal-height columns or tiles: flex items in a row align to the
+same height by default (thanks to align-items: stretch). - Reordering:
+with order property, an element can appear visually in a different
+position than in source. This allowed, for instance, moving a sidebar’s
+HTML below main content (for screen readers/mobile) but visually placing
+it on the side for desktop. - Responsiveness within a flex container:
+flex can automatically distribute leftover space or create scrollable
+overflow for dynamic content.
+
+A common example: a nav bar with menu items spaced out evenly –
+previously developers might use display: table-cell or tricky margins;
+flexbox allows justify-content: space-between to neatly space items[37].
+Another example: a 3-column layout that should collapse columns if not
+enough space; flex can do that with flex-wrap: wrap whereas floats
+required media queries to break to new rows.
+
+By 2017, many CSS frameworks (Bootstrap 4, Foundation 6, etc.) switched
+to flexbox for their grids or components. The float clearfix hack became
+less needed (except within legacy content flows). Flexbox didn’t remove
+the need for grid frameworks entirely – it’s linear, so for full page
+layout with rows and columns, authors still needed to combine multiple
+flex containers or use CSS Grid.
+
+CSS Grid (Grid Layout Module Level 1): After years of development, Grid
+launched in 2017 in browsers and became a Rec in 2018. Grid is
+two-dimensional, meaning it can define both rows and columns together,
+placing child elements into a cell or spanning cells.
+
+Why it changed practice: Grid is arguably the first CSS mechanism
+specifically designed for complex web layouts (not repurposed floats or
+table layout). Key powers: - You can explicitly position items via grid
+lines, e.g. grid-column: 1 / 3; grid-row: 2; to say “start at column 1,
+span to column 3, at row 2.” This is radically different from floats
+where position was implicit by source order. - The concept of grid
+template allows defining layouts in a high-level way:
+grid-template-columns: 200px 1fr 1fr 200px; could define a layout with
+fixed sidebars and flexible central columns, for instance. - Responsive
+layouts without media queries: using auto-fit and minmax, a grid can
+adapt. E.g., repeat(auto-fit, minmax(200px, 1fr)) creates as many 200px
+columns as will fit, distributing remaining space equally – so it wraps
+to fewer columns on smaller screens automatically[79]. - Overlapping
+content is possible easily by placing items on the same grid cells –
+enabling magazine-like layouts without absolute positioning.
+
+For designers, Grid unlocked creativity that was previously not feasible
+or required nasty hacks. For example: - Building a masonry-like grid or
+asymmetrical layouts (like spanning a headline across multiple columns
+or rows) became straightforward. - Aligning elements between rows: e.g.,
+with floats, each row of boxes acted independently, but with grid you
+can ensure vertical alignment across rows and columns because it’s one
+big grid (no more “grid of floats that mis-align if one column is
+taller”).
+
+Combined use: Flexbox and Grid are complementary. One common pattern:
+use CSS Grid for overall page layout (rows for header, main, footer;
+columns for sidebar vs. content, etc.), and within a specific component
+(like a nav or form), use Flexbox for alignment of items.
+
+A concrete example of float vs grid can illustrate the simplicity
+gained:
+
+Float-era 3-column layout:
+
+    <div class="row clearfix">
+      <div class="col col-1">A</div>
+      <div class="col col-2">B</div>
+      <div class="col col-3">C</div>
+    </div>
+    <style>
+    .row { width: 100%; }
+    .col { float: left; width: 33.333%; }
+    .clearfix::after { content:""; display: table; clear: both; }
+    </style>
+
+Grid-era 3-column layout:
+
+    <div class="grid3">
+      <div>A</div><div>B</div><div>C</div>
+    </div>
+    <style>
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    </style>
+
+No clearfix needed, no calculation for 33.333%, and adding gap spacing
+doesn’t require negative margins or nth-child adjustments – it’s built
+in with gap. The grid example is more semantic (no presentational
+classes on each cell, unless needed).
+
+Browser versions: Grid Level 1 support: Chrome 57/Firefox 52/Safari 10.1
+(all ~Mar 2017), Edge 16 (late 2017). Flexbox Level 1 support: basically
+all modern by 2016 (with some differences resolved by 2018). Both are
+stable enough that by 2020, one could use them without fallbacks for all
+but IE11 (which doesn’t support grid and has partial old flexbox).
+IE11’s market share was down to a niche by then, so many chose to drop
+IE or provide simplified layout for it.
+
+Subgrid (Grid Level 2): Not to forget subgrid: In complex layouts, you
+might have nested grid containers and want the inner grid’s tracks to
+align to the outer grid’s tracks. Subgrid allows a grid item that itself
+is a container to inherit its parent grid’s template for columns and/or
+rows. Firefox shipped subgrid in 2019[80], but only in 2023 did Chrome
+(v117) and Safari (16.4) catch up[81][82]. Now it’s finally usable
+cross-browser (as of end of 2023). Subgrid’s use case: e.g., a page
+layout with a 3-col grid, and inside main content you have a list where
+each item has an image and text that should align to the main grid
+columns – previously tricky, but with subgrid the list can declare
+display: grid; grid-template-columns: subgrid; and its columns align
+perfectly with the outer grid[83]. This is more advanced, but important
+for truly harmonious layouts.
+
+In summary, flexbox and grid dramatically improved CSS layouts: floats
+are essentially obsolete for major layout tasks, and creativity is less
+constrained. Learning layout now means learning these systems;
+fortunately, they are more straightforward in outcome (if not in initial
+learning) than piles of float hacks.
+
+CSS Custom Properties (Variables) and Design Tokens
+
+Custom Properties (CSS Variables): Landed in CSS with the appropriately
+named spec “CSS Custom Properties for Cascading Variables Module
+Level 1”. Support was in Chrome by 2016, Edge by 2017 (post-Chromium
+Edge), Safari 9 (2015), and Firefox 31 (2014)[46]. So by 2017, all
+current browsers had it enabled and by 2017/2018 it was safe to use in
+production (with some IE fallback if needed).
+
+Custom properties differ from preprocessor variables in key ways: - They
+live in the DOM/CSSOM at runtime. So you can change them with JS (e.g.
+element.style.setProperty('--theme-color', 'blue')) and all CSS that
+uses them updates live. This unlocks possibilities like theming toggles
+or dynamic color schemes with one property change (something
+preprocessor variables, which are baked at compile time, cannot do). -
+They inherit and cascade. If you define :root { --main-bg: #fff; } and
+then override section.dark { --main-bg: #333; }, all elements inside
+that section use the dark background if their styles reference
+var(--main-bg). This is powerful for design systems: you can define a
+set of custom properties for a theme (colors, spacing, etc.) at a high
+level, and have components simply use var(--spacing-1) or
+var(--brand-color). Switching the theme is just swapping the custom
+property values at some container, rather than rewriting lots of CSS.
+
+In practice, custom props became the backbone of many design token
+systems. Design tokens are named constants for design values (colors,
+sizes, fonts) which can be stored in a JSON or in code. CSS custom
+properties allow those tokens to be used directly in CSS, and even
+update on the fly. For example, a design system might define:
+
+    :root {
+      --color-primary: #0d6efd;
+      --color-primary-text: #fff;
+      --space-1: 4px;
+      --space-2: 8px;
+    }
+    .dark-theme {
+      --color-primary: #375a7f;
+      --color-primary-text: #eee;
+    }
+
+Then component CSS can do:
+
+    button {
+      background: var(--color-primary);
+      color: var(--color-primary-text);
+      padding: var(--space-2);
+    }
+
+When .dark-theme is applied to an ancestor (like
+<body class="dark-theme">), the button styles update accordingly with no
+extra CSS for the dark theme variant, thanks to inheritance.
+
+This pattern replaced older techniques like using Sass variables (which
+couldn’t change per theme unless you recompiled separate CSS) or using
+JS to swap entire stylesheets.
+
+Another use is the “CSS Pipeline”: Because custom props can hold any
+value, you can do clever things like: - Using them in calc() for dynamic
+calculations, e.g. width: calc(var(--sidebar-width, 200px) + 20px); – so
+if --sidebar-width is defined differently for large screens, the calc
+adapts. - Building color themes that respond to user preferences (some
+combine custom props with prefers-color-scheme media queries to
+implement auto dark mode). - Even using them for state that CSS
+otherwise can’t track; for example, some advanced techniques use custom
+props in keyframe animations or toggling one property to indirectly
+trigger another change.
+
+One drawback: Custom props are not typed (they’re basically text
+replacement at computed-value time). This means, for instance, you can’t
+directly animate a custom property (you can animate it on the JavaScript
+side or use it within an animatable property).
+
+Design token workflows often integrate with CSS variables: e.g., a
+design team maintains a JSON of tokens which is then output to a CSS
+file defining :root { --token-name: value; }. Tools like
+style-dictionary do this. It creates a clear bridge between design and
+code.
+
+Impact on development: Possibly the biggest is enabling theming and
+dynamic CSS without additional classes or JS fiddling with classes. Many
+component libraries now rely on a set of custom props to handle theming.
+E.g., you might see a web component library where to theme it you just
+set --some-color on the host and all internals pick it up.
+
+Custom properties also encourage CSS authors to think more in terms of
+system parameters and less hardcoding. That’s a mindshift: instead of
+writing margin: 16px you might use margin: var(--space-4). This can
+initially be extra work, but it pays off in consistency. It’s analogous
+to using variables in code rather than magic numbers.
+
+From a spec perspective, custom props were also a step toward making CSS
+more like a real programming environment (introducing mutable state
+essentially). They open the door to things like the upcoming @property
+rule (in CSS Properties & Values API Level 1) which allows authors to
+define syntax and defaults for their custom properties (giving the
+browser a hint about expected type, which could allow interpolation in
+animations, etc.). As of 2025, @property has partial support
+(Chrome/Edge, Safari, not in Firefox yet). It’s a niche feature but
+shows how custom props are evolving.
+
+Cascade Layers (@layer) and Managing the Cascade
+
+Cascade Layers (from CSS Cascading and Inheritance Level 5, 2021)
+represent a new tool to order stylesheet rules. They are analogous to
+how an application might have layers of configuration (like user config
+vs. system config). With @layer, authors can assign their rules to named
+layers, and then control the cascade order of those layers.
+
+All rules in a later (higher priority) layer will outrank rules in an
+earlier layer regardless of specificity. This is key: normally, a very
+specific selector could override a less specific one later in the CSS.
+Layers create a higher level of cascade that trumps specificity.
+
+For example, say you have:
+
+    @layer reset {
+      h1 { margin: 0 }
+    }
+    @layer components {
+      h1.title { margin: 0.5em 0 }
+    }
+
+If the layers order (implicitly by first usage or explicitly set) is
+reset then components on top, then the rule in components wins (so
+h1.title margin 0.5em) even if another h1 rule with higher specificity
+existed in the reset layer. Layers sit just above specificity in cascade
+order[49][84].
+
+How to use: Typically, at the start of CSS, an author might do:
+
+    @layer base, theme, components, utilities;
+
+This declares 4 layers and their order. Now, any styles can be assigned
+to a layer by prefixing rules with @layer. e.g.:
+
+    @layer base {
+      html { box-sizing: border-box; }
+      body { margin: 0; }
+    }
+    @layer components {
+      .card { /* styles */ }
+      .modal { /* styles */ }
+    }
+    @layer utilities {
+      .text-center { text-align: center !important; }
+    }
+
+If a utility class has !important, note that normally it overrides
+anything, but within layers, an !important in a lower layer doesn’t beat
+a normal rule in a higher layer – because layers partition the
+cascade[85][86]. So layers even can tame the blanket power of !important
+in some scenarios, by effectively creating separate cascade for layered
+vs unlayered rules.
+
+Why it matters: In large projects or when using frameworks, one often
+had to fight specificity. For instance, adding !important on utility
+classes to ensure they override component styles, or carefully ordering
+<link> tags so that your custom CSS comes last to override library
+defaults, etc. Layers make this systematic: - You can put all
+third-party CSS (like a UI library’s CSS) in a layer that’s low
+priority. - Your own components in a higher layer. - If you use utility
+classes (like Tailwind or custom ones), perhaps assign them the highest
+layer (so they can always tweak things). - Or if you have a theme
+override file, you might put it in highest layer to ensure it can
+override anything in base or components.
+
+This approach prevents many “specificity wars” because you don’t need to
+rely on writing more specific selectors or using !important to override
+– you rely on layer precedence. It’s a bit like an organized, scoped
+version of !important but without the downsides of making things truly
+global important (and layers can be limited to just certain rules).
+
+One could analogize layers to sheets of acetate overlays in design. For
+example, base styles are on bottom, theme adjustments next, component
+defaults next, then utility tweaks on top – each sheet overrides the
+ones below without fussing with exact selector weights[15][84].
+
+Adoption: Browser support hit stable in 2022 (Chrome 99, Firefox 97,
+Safari 15.4)[15]. Tools like WordPress quickly integrated it
+(WordPress’s theme engine now wraps core styles in a base layer so that
+theme-specific CSS can be layered above). Tailwind CSS 3 (late 2021)
+started using layers under the hood to manage its internal style
+ordering.
+
+It’s still a new concept for many developers, but it’s likely to become
+standard in frameworks. Tailwind, for instance, prints its utilities in
+a utilities layer which by default comes last, so that if you also use
+say Tailwind’s preflight (their base styles) in a base layer, you ensure
+that any utility classes beat those base styles without needing
+!important. This is done automatically if you follow their recommended
+CSS output.
+
+One subtle thing: layers don’t change how cascade works within them – so
+specificity still matters inside a layer, and source order inside a
+layer matters. But layers give an outer structure. If one absolutely
+needed to override a high-specificity rule from a library without
+matching its specificity or using important, one could place an override
+in a higher layer and easily do so. No more “add another class to bump
+specificity”.
+
+Example comparing with/without layers:
+
+Without layers, suppose you have Bootstrap’s CSS and your custom CSS. If
+Bootstrap has .btn.primary { color: white; background: blue; } and you
+want to override .btn.primary background to red, you either: - Include
+your CSS after Bootstrap’s in the HTML, and write
+.btn.primary { background: red; } (which works because of source
+order). - Or if you can’t reorder easily, you might do
+.btn.primary.custom { background: red; } with an extra class to up
+specificity or use !important.
+
+With layers:
+
+    @layer framework {
+      /* Bootstrap CSS here */
+      .btn.primary { background: blue; }
+    }
+    @layer custom {
+      .btn.primary { background: red; }
+    }
+
+and declare @layer framework, custom; so custom is on top. Now it
+doesn’t matter if the framework CSS physically comes before or after
+(though in practice to define layer order one likely declares them up
+front), the layers guarantee custom wins.
+
+Another interesting use is isolating third-party CSS to avoid it
+interfering. If you put a third-party component’s CSS in its own layer
+that is lower priority than your layers, even broad rules in it (like a
+bad practice h1 { ... }) won’t override your site’s base styles because
+yours can be in a higher layer.
+
+Cascade layers essentially give developers a structured way to use the
+cascade again. Many past methodologies tried to limit the cascade (like
+BEM encourages writing independent blocks that don’t rely on cascade).
+Cascade layers let you safely use cascade for what it’s good for (global
+defaults vs site-specific vs components vs utilities layering) without
+the fragility of one rule accidentally trumping another due to load
+order or specificity.
+
+Native CSS Nesting (Selectors Level 4)
+
+We discussed native nesting earlier in context, but here’s a focused
+look:
+
+-   Spec: CSS Nesting Module Level 1 (though effectively part of
+    Selectors/Syntax specs). Achieved Candidate Recommendation Draft by
+    2023, shipping started the same year. It was long anticipated:
+    nesting was one of the earliest requests once people saw it in Sass.
+
+-   Support: Chrome 112 (released Apr 2023) with
+    --enable-experimental-web-platform-features flag, then on by default
+    in Chrome 113. Safari 16.4 (Mar 2023) turned it on by default.
+    Firefox 117 (Sep 2023) enabled it by default[87][88]. So by end of
+    2023, all current browsers support CSS nesting (which is remarkable,
+    showing how quickly things can align now).
+
+-   Syntax: The accepted syntax allows omission of & for straightforward
+    descendent nesting. So:
+
+-   .menu {
+          background: #fff;
+          li { list-style: none; }
+          li > a { color: blue; }
+          &.active { border: 1px solid; }
+        }
+
+    This would expand to:
+
+        .menu { background: #fff; }
+        .menu li { list-style: none; }
+        .menu li > a { color: blue; }
+        .menu.active { border: 1px solid; }
+
+    Key rule: if the nested selector starts with a letter or * or :, the
+    UA assumes it’s a descendant selector with an implied & in
+    front[89][90]. If you need to append without a space (like adding a
+    pseudo-class or a suffix), you must use & explicitly. E.g.,
+    &:hover { ... } or &-title { ... } if you want to form .menu-title
+    as a combined class. You can also nest at-rules like media queries
+    inside, which is nice:
+
+        .card {
+          padding: 1rem;
+          @media (min-width: 600px) {
+            padding: 2rem;
+          }
+        }
+
+    That’s purely for author convenience (it compiles to two separate
+    rules, but keeps them near each other in source which is easier to
+    manage).
+
+-   Why it helps: If you look at a large Sass codebase, often the
+    nesting isn’t more than 2–3 levels deep because of best practices.
+    Now you can do the same in plain CSS:
+
+-   It avoids repetition of a long parent selector across multiple
+    lines.
+
+-   It organizes the CSS to mirror HTML or conceptual hierarchy.
+
+For a code snippet example (Sass vs native CSS):
+
+Sass:
+
+    .navbar {
+      background: var(--nav-bg);
+      ul {
+        margin: 0;
+        li { display: inline-block; }
+        a {
+          text-decoration: none;
+          &:hover { text-decoration: underline; }
+        }
+      }
+    }
+
+Native CSS (works the same):
+
+    .navbar {
+      background: var(--nav-bg);
+      ul {
+        margin: 0;
+        li { display: inline-block; }
+        a {
+          text-decoration: none;
+          &:hover { text-decoration: underline; }
+        }
+      }
+    }
+
+While this is a trivial example, at scale it reduces error potential
+(forgetting to repeat a compound selector in multiple places) and
+improves maintainability.
+
+Interaction with layers and other features: Nesting works with cascade
+layers and container queries, etc., just as one would hope – these
+features are orthogonal but complementary.
+
+One caveat: developers need to be aware of not over-nesting because it
+can still produce very specific selectors. E.g.,
+.foo { .bar { .baz { ... }}} yields .foo .bar .baz which might be okay
+or might be overly specific if not needed. Good practices from Sass days
+still apply: nest to reflect components, not arbitrary deep DOM, and
+avoid too deep since it ties your CSS to a specific HTML structure which
+might change.
+
+With custom props, one can even nest uses of them contextually. Eg:
+
+    .theme-light {
+      --button-bg: #eee;
+      .button { background: var(--button-bg); }
+    }
+    .theme-dark {
+      --button-bg: #333;
+      .button { background: var(--button-bg); }
+    }
+
+This yields more repeated CSS after compile (two separate
+.theme X .button rules), but it’s grouped logically in the source.
+
+Net effect: Native nesting removes one of the last reasons to use a
+preprocessor for many projects (the others being if you heavily rely on
+mixins or certain functions). Now that CSS can do custom props
+(replacing variables), :has() (replacing some JS logic), @layer
+(replacing manual import ordering concerns), and nesting (replacing Sass
+nesting), a lot of teams may stick to vanilla CSS with a PostCSS build
+step for autoprefixing only. This simplifies toolchains, which is a
+positive trend given how complex front-end builds had become.
+
+Relational Selectors: :has() (CSS Selectors Level 4) and New Patterns
+
+We’ve highlighted :has() earlier. To recap: - It’s a pseudo-class that
+takes a selector list as argument. It matches an element if it has at
+least one descendant (or in general, element in its sub-tree) that
+matches the argument selector. - Example: .gallery:has(img:hover)
+matches a .gallery when one of its descendant images is hovered[91][92].
+This was impossible in CSS before – you couldn’t select a parent based
+on a child’s state. - It’s often described as a “parent selector”,
+though :has() can do more (it can actually look for any relative
+selector, not just direct children, and not even just downward – though
+in practice current use is mainly parent-lookup).
+
+Support and performance: As noted, Safari shipped it first (15.4, March
+2022), then Chrome 105 (Aug 2022), then Firefox 121 (Dec 2023)[51][93].
+Performance was a concern (naively, :has() could be expensive because
+it’s not as simple as matching a property on the element itself). But
+browsers optimized common cases (like restricting it to looking at
+children or maybe limiting scope if possible). Chrome flagged :has() as
+one of the big improvements of Interop 2022.
+
+What it enables: - Parent state styling: e.g., highlight a menu when one
+of its items is active:
+
+    nav:has(.active) {
+      /* if any .active link inside nav, style the nav */
+      background: #ffc;
+    }
+
+- Conditionally style siblings based on future element: E.g., style the
+first <hr> in a container differently if it’s followed by a heading:
+
+    hr:has(+ h2) {
+      margin-bottom: 0;
+    }
+
+Here, :has(+ h2) on hr means "hr that has an adjacent sibling that’s an
+h2". Or another sibling example: .field:has(input:invalid) to style a
+wrapper if the input inside is invalid (common for forms). - Minimal
+markup UI control: Consider a show/hide with checkbox hack:
+
+    .faq:has(input[type="checkbox"]:checked) .answer {
+      max-height: none;
+    }
+
+This can toggle .answer visibility when a hidden checkbox in .faq is
+checked (no need for JS). - Reverse selectors for styling preceding
+content: Eg: h2:has(+ p) might not be as directly useful, but p:has(+ p)
+could add spacing only between consecutive paragraphs:
+
+    p:has(+ p) {
+      margin-bottom: 1em;
+    }
+
+This is an easier way than the traditional p + p { margin-top: ... }
+because if you want margin-bottom only when another p follows,
+p:has(+ p) expresses that more intuitively.
+
+-   Selecting based on number of children: Using :has() with :nth-child
+    or :nth-last-child we can style containers depending on how many
+    items they have. Example: a list item should have a different margin
+    if it’s the last item: Actually we had :last-child for that. More
+    powerfully, :has() can combine with quantifiers:
+
+-   ul:has(> li:nth-child(odd):last-child) {
+          /* if the last child is odd-indexed, means odd number of items in list */
+          background: #f0f;
+        }
+
+    Or an easier one: highlight a cart icon if the list of cart items is
+    not empty: .cart-icon:has(+ .cart-items > li) – meaning if right
+    after cart icon there’s a list with at least one <li>, style the
+    icon (like show a filled cart instead of empty).
+
+A major pattern emerging with :has() is CSS-only interactive components
+(with the help of :checked or :target): For example, a dropdown menu
+without JS:
+
+    <label class="menu-toggle">
+      Menu
+      <input type="checkbox" hidden>
+    </label>
+    <ul class="menu-items">
+      <li>Item1</li>
+      <li>Item2</li>
+    </ul>
+
+CSS:
+
+    .menu-toggle:has(input:checked) + .menu-items {
+      display: block;
+    }
+    .menu-items { display: none; }
+
+So when the label (which contains the checkbox) is "active" (checkbox
+checked), the adjacent .menu-items shows. This was possible with sibling
+selectors and :checked before, but :has() can simplify scenarios where
+the controlling element isn’t directly adjacent or is nested, etc. It
+really shines in forms and filters, where one input’s state affects
+styling of other elements.
+
+One caution: Because :has() can lead to complex matching, you have to be
+mindful not to overdo broad selectors like body:has(h1) – that would
+match the body on any page that has an h1, i.e., nearly every page,
+making it effectively a global style (and maybe slow to evaluate). But
+in typical UI use, :has() is used with fairly short scopes (like a
+parent and immediate child relationship), which browsers optimize.
+
+In essence, :has() supercharges CSS selectors: we can select an element
+if its subtree meets a condition. This moves CSS closer to some
+abilities of jQuery (which famously had parent selectors via .parent()
+in its traversal, but now CSS can do some of that directly).
+
+Container Queries and Query Units: Component-Driven Responsive Design
+
+Container Queries (Size Container Queries Level 1) – shipped broadly by
+early 2023 (Chrome/Edge 105, Safari 16, Firefox 110)[54][94] – are
+arguably the most awaited CSS layout feature since media queries.
+Instead of querying the viewport (@media), you can query an ancestor
+container’s dimensions (@container).
+
+To use container queries, one must designate an element as a containment
+context via CSS container or container-type. Typically:
+
+    .card-container {
+      container: layout inline-size;
+    }
+
+This says: treat this element as a container for querying its
+inline-size (width in horizontal writing)[95]. The layout part means the
+element uses containment so that external layout doesn’t depend on its
+internals (some performance considerations; container-type: inline-size
+is basically minimal needed for querying width). Now inside that
+container (in descendant styles), you can write:
+
+    @container (max-width: 400px) {
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+This will apply only when the nearest ancestor container’s width is <=
+400px[96]. If multiple containers are ancestors, by default it uses the
+nearest with a matching type (you can name containers too for
+specificity, but that’s advanced usage).
+
+Why it’s transformative: With media queries, components often had to
+know about the entire viewport to adapt. E.g., a sidebar might switch
+from horizontal to vertical orientation at a certain viewport width –
+but what if that sidebar is used in a narrow column of a larger page vs
+full width in a mobile layout? Media queries couldn’t adapt based on
+parent width, leading to either multiple variants or less-than-ideal
+breakpoints.
+
+Container queries allow truly responsive components: - A widget can
+change layout based on the space given to it (perhaps in one context
+it’s full width so it shows content in 2 columns, but in a small sidebar
+it collapses to 1 column). - Design systems can now define component
+breakpoints that are independent of the page’s breakpoints. Think of a
+card component that goes from horizontal (image beside text) to vertical
+(image above text) when the card itself gets too narrow – previously,
+you’d approximate that by a global breakpoint that triggers when likely
+the card is narrow, but if that card is placed in a narrower container
+from the start, you needed a different global breakpoint or a different
+component variant. Now it’s automatic: the card queries its container.
+
+Example: A product grid component wants to display 4 columns when
+there’s room, 2 columns in narrower space, 1 column on very narrow:
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      container: layout inline-size;
+    }
+    /* If container (grid itself) is at least 500px, use 2 columns */
+    @container (min-width: 500px) {
+      .product-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    /* If container is at least 800px, use 4 columns */
+    @container (min-width: 800px) {
+      .product-grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+      }
+    }
+
+Now, wherever you put <div class="product-grid"> in the page, it will
+adapt columns to its own width. If it’s in a big page body, it might
+reach 800px and show 4 columns. If the same component is embedded in a
+half-width column at ~600px, it will only ever go to 2 columns. This is
+all without writing page-specific CSS – the component CSS is
+self-contained. This is huge for design systems and for eliminating
+duplication of breakpoints.
+
+Container Query Units (cqw, cqh, cqi, cqb, cqmin, cqmax): These are like
+vw (viewport width unit) but relative to the query container instead.
+For example, 10cqw is 10% of the container’s width[56]. These units can
+be used even outside an @container rule (they refer to the nearest
+container). They help create truly fluid components – e.g., a text size
+that scales with container width: font-size: min(2rem, 5cqw); would be
+at most 2rem but otherwise 5% of container width, making it adapt but
+not too large in large containers.
+
+Adoption in workflow: Up to 2022, many responsive designs used a
+combination of: - Global breakpoints (like at 768px, 1024px) for major
+layout shifts. - Some component-specific tweaks but implemented via
+global queries targeting component classes (like
+.sidebar { width: 25% } @media (max-width:768px){ .sidebar { width: 100% } }
+– which is global query affecting a specific component). - Polyfills for
+container queries existed (like EQCSS or using ResizeObserver in JS to
+mimic it), but they weren’t mainstream due to performance or complexity.
+
+Now with browser support, teams can refactor gradually: - Use container
+on main layout wrappers to allow interior adjustments. For instance, one
+might put container-type: inline-size on a main content area and then
+inside the content area’s components could use @container rules instead
+of @media. - For new components, directly design them mobile-first at
+the component level.
+
+Cascade and containment interplay: A container can be nested inside
+another container. By default, @container without name picks the nearest
+container ancestor of matching type. If you want to target not the
+nearest but a specific ancestor, you can name containers and reference
+by name: e.g. container: inline-size / name; on parent, and then
+@container name (min-width: ...) { ... } inside deeper descendant. But
+most use cases just need nearest.
+
+Limitation: Only querying size (and specifically only width or
+block-size by default). There’s a Level 2 in discussion for style
+queries (like query on computed style property values rather than just
+size) – that’s future. For now, container queries mostly solve layout
+responsiveness.
+
+Example of before vs after (media vs container):
+
+Before – to style a card differently when it’s in a sidebar vs main
+content, you might rely on context:
+
+    @media (max-width: 600px) {
+      .card { /* for mobile, maybe full width card with image on top */ }
+    }
+    @media (min-width: 601px) {
+      .card { /* horizontal layout card */ }
+    }
+
+But if .card is in a sidebar that is 500px even on desktop, the global
+media query thinking might not apply (since viewport might be wide but
+card’s parent is narrow). A dev might have to add something like
+.sidebar .card { ... } as a special case. That couples the card’s design
+to where it’s used.
+
+After – the card’s own CSS:
+
+    .card { /* base mobile style (stacked) */ }
+    @container (min-width: 400px) {
+      .card { /* horizontal style for when card has space */ }
+    }
+
+Now, wherever the .card is, it looks at its container. If placed in a
+300px-wide column (less than 400px), it stays stacked. If placed in a
+600px area, it goes horizontal. Clean separation of concerns – no need
+to know about “sidebar” or use global breakpoints. Each component
+basically has “self-contained breakpoints”.
+
+This aligns with modern web development’s component focus: React/Vue/etc
+already encourage thinking in isolated components, and CSS now has the
+tools to match that mental model (especially combining container queries
+with shadow DOM or CSS modules to scope selectors).
+
+Other Modern Improvements Worth Mention
+
+We focused on big-ticket features above, but to complete the picture of
+“modern CSS feature-rich era”, a few more quick notes: - New
+Pseudo-classes: e.g., :is() and :where() from Selectors Level 4 (widely
+supported by 2021). These help shorten selectors and manage specificity:
+:is() groups selectors without adding specificity cost of repeating the
+common parent. :where() is like :is() but is always zero
+specificity[11]. Useful e.g., :is(h1, h2, h3) { ... } to style all
+headings same way in one rule. - Color Level 4/5: CSS now supports
+modern color formats (lab, lch, color-mix(), etc.), though across
+browsers support is ongoing (Safari 15+ leads here, Chrome implementing
+by 2023, Firefox a bit behind). This isn’t practice-changing like grid,
+but relevant for design fidelity and accessibility (e.g., color-mix()
+can help generate accessible themes by mixing with black/white). -
+Scroll Snap (2018): CSS Scroll Snap Points became standardized (CSS
+Scroll Snap Module 1). Allows container to snap scroll positions to
+particular children – used in carousels, photo galleries. -
+overscroll-behavior (2018): To control what happens when a user scrolls
+to end (e.g., prevent parent scroll chaining). Not glamorous, but
+important for modals etc. - Conic and CSS Shapes, etc.: Conical
+gradients (Chrome 69, etc.), better support for shape-outside to flow
+text around custom shapes – these are more niche but show CSS expanding
+beyond rectangles. - Web Typography: Variable fonts (2016 spec, broadly
+used by 2020) which CSS supports via font-variation-settings or axes in
+@font-face. Not a CSS spec per se, but a font tech that CSS can harness.
+Allows fluid weight changes, etc., which designers incorporate with new
+CSS like font-optical-sizing. - Aspect-Ratio (2021): The aspect-ratio
+property lets you define an intrinsic aspect ratio for any box, making
+it far easier to create responsive iframes or placeholders that maintain
+shape (replacing the old padding-top hack). - :focus-visible (2020):
+Helps accessibility by only showing focus outlines when appropriate
+(part of UI Events Level 1 but integrated with CSS :focus-visible
+pseudo). - Scroll-linked animations: Actually not fully standardized,
+but things like @scroll-timeline and CSS animation-timeline are being
+worked on (Chrome has some behind flag). Community did a lot with JS +
+CSS, now CSS itself is evolving to handle it.
+
+All these modern features, shipping roughly in the 2017-2023 window,
+have made CSS a much more powerful layout and design language. Many
+tasks that required either heavy workarounds or JavaScript can now be
+done with clean, declarative CSS.
+
+The cumulative effect is significant: The barrier between what a
+designer imagines and what can be done in pure CSS is much lower,
+meaning fewer “that requires JS or an image or crazy hacks.” Some see it
+as CSS finally “growing up” to meet the demands of complex web apps and
+highly dynamic content that were once the domain of JS frameworks.
+
+Next, we’ll look at how these formal spec improvements were often
+informed by informal practice, and vice versa, to appreciate the
+feedback loop between the community and CSSWG.
+
+Practice ↔ Spec Feedback Loop: When Community and Standards Converge
+
+Throughout CSS history, there are clear instances where community-driven
+conventions influenced CSS specifications, and where spec innovations
+changed how people write CSS (sometimes validating or obviating previous
+techniques). Here are a few case studies in this symbiosis:
+
+-   From CSS Frameworks to CSS Grid: For years, developers used
+    float-based grid frameworks (Blueprint, 960.gs, Bootstrap) to
+    achieve common layout patterns (12-col grids, gutters, full-width vs
+    fixed containers). The CSS Working Group, noting these ubiquitous
+    patterns, made sure that CSS Grid could elegantly express them.
+    Indeed, Grid’s repeat(auto-fill, minmax(...)) was practically
+    designed for the responsive grid use-case that frameworks did with
+    media queries and percentage widths. The idea of a “gutter”
+    (grid-gap) is first-class in Grid[97]. We can say that the success
+    and limitations of frameworks demonstrated a need: authors want an
+    easy declarative grid. The frameworks themselves couldn’t directly
+    influence spec text, but many spec authors (like Tab Atkins) are
+    active in the community and drew inspiration. End result: CSS Grid
+    made frameworks simpler or unnecessary – e.g., the latest Bootstrap
+    5’s grid can optionally use CSS Grid under the hood for auto layout
+    of columns (though it defaults to flex for IE support reasons).
+
+-   From Vendor Prefix Hell to Autoprefixer and Standards Alignment: In
+    the early 2010s, web developers complained about having to write
+    -webkit- -moz- -o- etc., and also about WebKit-only CSS on mobile
+    locking out other browsers. The community response was
+    Autoprefixer (2013) – which leveraged the Can I Use data (itself a
+    community-curated knowledge base) to automate prefixing[13].
+    Autoprefixer’s widespread adoption sent a signal to browser vendors:
+    prefixes were a burden we’d rather automate away. Meanwhile, W3C
+    tightened guidelines on experimental features, encouraging “enable
+    by flags” instead of on by default with prefixes. By mid-2010s,
+    fewer new features required prefixes (Chrome and others started
+    doing “image-rendering: crisp-edges” rather than -webkit-whatever).
+    Also, vendors began removing old prefix code once a feature was
+    standard (to discourage lazy devs from just keeping -webkit- in code
+    forever). Another outcome: Interop 2016 (aka “No more -webkit-”): a
+    drive by Mozilla, MS, etc. to make their engines accept some popular
+    -webkit- prefixed CSS for compatibility (e.g.
+    -webkit-linear-gradient). While unfortunate, it showed that
+    community content can force spec decisions – the Web Compatibility
+    group documented sites breaking on non-WebKit browsers, leading to
+    WHATWG specs that actually define some -webkit- aliases to ensure
+    compat.
+
+-   CSS Methodologies → Cascade Layers / Scoping: The methodologies like
+    BEM and SMACSS were essentially coping strategies for the global
+    nature of CSS. BEM in particular created “micro-namespaces” with its
+    block naming[98]. The CSSWG has long discussed providing native
+    scope to CSS to reduce conflicts. Shadow DOM (from Web Components)
+    is one such solution – encapsulating styles by attaching them to a
+    component’s shadow root. This was introduced around 2013-2014 (Blink
+    and WebKit support by 2014, Firefox later) and allowed truly
+    isolated component styles (with the downside of needing to use Web
+    Components or frameworks that leverage them). Outside of Web
+    Components, the CSSWG is exploring an @scope rule that would allow
+    scoping a block of CSS to a selector (e.g. @scope .dialog { … } only
+    applies inside .dialog). Cascade Layers (@layer) also help here:
+    while not exactly scoping, they allow safely mixing CSS from
+    different sources without them tripping over each other, by
+    assigning each source a layer[15][84]. We can consider layers a
+    standard response to the question, “How do I integrate third-party
+    CSS or large-scale styles without fighting specificity?” – something
+    BEM/SMACSS tried to solve by convention (like never use ID
+    selectors, keep specificity low). Layers allow low specificity
+    across the board, then use layer ordering to resolve conflicts
+    elegantly. Without years of industry pain around this, layers might
+    not have been prioritized.
+
+-   Preprocessors and Native CSS Features: Sass and LESS proved the
+    value of variables, nesting, mixins, color math, etc. The CSSWG did
+    not incorporate all of these wholesale, but incrementally. Custom
+    Properties (2016) were arguably better than preprocessor variables
+    because of their dynamism[42]. But their syntax (--var) and concept
+    clearly owes to the years of Sass usage (people were ready to use
+    variables in CSS because they’d been doing it elsewhere). Native
+    Nesting (2023) is a direct transplant from Sass ideas[89]. Even the
+    syntax with & was chosen to be as familiar as possible to Sass/LESS
+    users, to ease migration. Conversely, preprocessors also adapted to
+    new CSS: Sass added a special @at-root to allow breaking out of
+    nesting when needed (some parity with CSS’s need for manual & usage
+    in certain places). As CSS gained features like calc() and
+    variables, people relied a bit less on the preprocessor for those.
+
+-   Responsive Design & Spec Adaptation: Ethan Marcotte’s RWD (2010) was
+    implemented with media queries already in CSS3 drafts, so that was
+    fortunate timing rather than feedback. However, RWD practice did
+    highlight issues: for example, the inability to conditionally load
+    high/low-res images was solved outside CSS via <picture> and srcset
+    – not exactly CSS’s domain, but part of responsive resources. The
+    container queries that media queries couldn’t provide became a top
+    requested feature by the community, with numerous “element query”
+    proposals and polyfills around 2013-2015. The CSSWG was cautious due
+    to performance, but ultimately the demand and use cases (often
+    eloquently demonstrated by developers in talks and articles) pushed
+    them to design Container Queries. In 2019, Miriam Suzanne (from
+    community) and others wrote an “Intrinsic Design” explainer
+    advocating container queries. By aligning the spec design with real
+    component-based responsive needs, the feature landed in a way that
+    immediately addressed the community’s use cases[21].
+
+-   Utility-First Trends (Atomic CSS) vs. Spec Philosophy: Utility-first
+    CSS like Tachyons/Tailwind essentially says: “use tiny classes for
+    each property (e.g. .mb-4 for margin-bottom) and compose in HTML,
+    don’t write new CSS if you can avoid it.” This is partly a reaction
+    to how heavy and slow large CSS files can get, and how
+    specificity/cascade can complicate overriding styles. Tailwind’s
+    success (2017+) showed many devs prefer this approach (especially in
+    JS-heavy stacks where HTML is generated by components, making
+    multiple classes manageable). The CSSWG hasn’t directly responded
+    with something like “utility classes built-in”, but cascade layers
+    arguably make utility classes safer to use (you can shove them in a
+    highest layer with important, like Tailwind does, to ensure they
+    apply last without conflict[19]). Another angle: !important in
+    utilities was common (to guarantee override power), which was
+    frowned on in classic CSS doctrine. Cascade layers provide an
+    alternative that’s more controlled. In that sense, the spec caught
+    up to the need for tiered importance which utility CSS exposed.
+
+-   CSS-in-JS influence: CSS-in-JS emerged from React developers who
+    disliked global CSS and wanted dynamic styling. It led to inventions
+    like CSS Modules (which hash class names to avoid collisions) and
+    style-in-React solutions that generate <style> tags on the fly. The
+    existence of CSS-in-JS highlighted a few pain points: global scope,
+    runtime theming, co-location of styles with logic, and dead code
+    elimination. The CSSWG’s answer isn’t to abandon CSS for JS, but to
+    improve CSS: cascade layers and @scope for scoping, custom
+    properties for theming, and in the future maybe Constructable
+    Stylesheets (an API to manage style via JS more efficiently). Some
+    features like :where() pseudo (zero specificity grouping) can help
+    frameworks apply default styles that are easy for user overrides –
+    something styled-components did by ensuring base styles are low
+    specificity and user-provided ones can override. The dialogue
+    continues: React’s team proposed (though later shelved) a “CSS
+    scoped to a component tree” feature; the CSSWG is exploring if
+    Shadow DOM can be easier to use. So while CSS-in-JS isn’t
+    standardized, its use pushed browser developers to consider how to
+    make CSS more component-friendly.
+
+-   Web Performance and Spec: Large, unused CSS hurts performance
+    (unused bytes shipped and style calculations complexity). The
+    community answered with PurgeCSS (to strip unused classes,
+    especially in Tailwind’s approach) and critical CSS extraction
+    (inlining only above-the-fold styles). The CSSWG doesn’t directly
+    solve this, but container queries can reduce the need for many
+    global rules, and proposed features like
+    <link media="(supports: selector(:has))"> that conditionally load
+    CSS only if a browser supports something (to avoid huge bundles with
+    fallbacks) – but that’s still experimental. It’s a reminder that
+    practical constraints like performance also shape usage and
+    therefore indirectly influence priorities (e.g., now heavy emphasis
+    on Interop to make sure devs don’t resort to large polyfills or
+    bloated workarounds for missing features).
+
+In all these examples, we see a loop: - Developers create conventions,
+tools, or polyfills to address limitations. - The success (or pain) of
+those approaches informs W3C and browser implementers where improvements
+are most needed or which ideas work in practice. - The standards deliver
+features (sometimes years later) that make the old hacks obsolete or
+formalize them in more robust ways. - Then developers shift to using the
+native features, freeing them to tackle the next set of challenges.
+
+It’s a continuous iteration. The end result is today’s CSS is more
+aligned with how developers want to write CSS and how web apps are
+built.
+
+Controversies and Trade-offs (Sidebars)
+
+In CSS’s journey, several debates have arisen in the community. Here
+we’ll briefly outline a few, noting arguments on each side and current
+status – essentially summarizing ongoing “CSS holy wars” and how recent
+advancements address them:
+
+-   Semantic Markup vs. Utility Classes: The controversy: Early
+    standards advocates preached separating content and presentation
+    strictly, which meant using meaningful class names (or none) rather
+    than presentational ones like “.red-text” or “.mt-4”. Utility-first
+    CSS flips this, embracing non-semantic classes as a practical means
+    to an end (speed, consistency).
+
+-   Arguments for semantic CSS: It’s more maintainable long-term –
+    classes convey meaning (e.g., “.error-message” style tells you what
+    it’s for, not how it looks). It’s better for accessibility and
+    possibly SEO (though class names don’t directly impact SEO). It also
+    generally results in leaner HTML (one class instead of many).
+
+-   Arguments for utility CSS: Faster to work with – no context
+    switching to a CSS file to write new styles; you can compose from a
+    palette of existing classes. Enforces consistency – you aren’t
+    picking arbitrary values; you use the scale (one of 5 margin sizes
+    etc.). Surprisingly, can lead to smaller CSS payloads at scale
+    because you reuse the same small classes everywhere and tools can
+    purge any unused ones (whereas handcrafted CSS often accumulates
+    unused rules).
+
+-   Current state: Both approaches coexist. Many projects use a hybrid –
+    semantic class names for components combined with utility classes
+    for small tweaks. Tailwind’s popularity indicates utility-first is
+    mainstream. Specificity-wise, utility classes often use !important
+    to ensure they win, which was a point of contention (overuse of
+    important). Now cascade layers allow giving utilities highest
+    priority in a safer way[19]. Ultimately, HTML semantics can still be
+    preserved (your HTML elements and ARIA roles remain meaningful;
+    classes don’t change that). It’s become accepted that utility
+    classes are not “bad” if it yields better engineering outcomes.
+
+-   Global CSS vs. Encapsulated/Scoped CSS: The controversy: Traditional
+    CSS is global – one file loaded applies to entire page. This can
+    lead to unintended interactions (some CSS bleeding into areas it
+    shouldn’t). BEM, etc., offered conventions to mitigate that. Web
+    Components and CSS-in-JS offer true encapsulation (styles can’t leak
+    in or out).
+
+-   Global CSS perspective: The cascade and inheritance are features,
+    not just hazards. They allow one to set site-wide theming easily, or
+    have a consistent baseline (like all headings margin-bottom). Global
+    CSS can be lighter (no repeated style definitions for each
+    component).
+
+-   Scoped CSS perspective: When building complex apps, you want
+    components that are self-contained (so you can reuse or drop them in
+    without side effects). Scoped CSS (via CSS Modules or Shadow DOM)
+    ensures that updating one component’s styles doesn’t accidentally
+    break another. It’s easier for multiple teams to work in parallel on
+    a large codebase without stepping on each other.
+
+-   Current state: Web Components provide actual browser-level scoping
+    (though adoption in general webdev has been moderate, outside design
+    system implementers). CSS Modules (in build systems) similarly solve
+    scoping by name mangling – widely used in React ecosystem.
+    Meanwhile, the spec world’s answer like @layer and upcoming @scope
+    at-rule bring structured approach to global CSS (so you get benefits
+    of encapsulation but still allow intentional inheritance). So this
+    controversy is being resolved by offering both: use global CSS for
+    things that really are global (like base styles, theme variables in
+    :root) and use scoped techniques for truly independent parts (like a
+    widget that you embed from a third party). We’ve come to appreciate
+    both: global CSS is great for not repeating common styles, but
+    encapsulation is great for reliability and maintenance. With layers
+    and custom props, one can even mix: have global definitions but
+    allow local overrides in a safe way.
+
+-   CSS-in-JS (runtime styling via JS) vs. Native CSS: The controversy:
+    Some advocated moving styling into the component logic (JS), arguing
+    that it brings better dynamism (calculating styles on the fly, theme
+    context via JS) and co-location. Others saw this as overkill that
+    sacrifices performance and simplicity (CSS was designed to be parsed
+    and applied efficiently; generating it via JS can be slower).
+
+-   For CSS-in-JS: Solves scoping, makes styles more easily conditional
+    (just put an if in your JS for dark theme for example), can utilize
+    the full power of programming (loops, constants from same source as
+    JS). Easier to bundle and code-split for SPAs. Some CSS-in-JS
+    libraries can also do dead-code elimination or only load styles when
+    needed by a component.
+
+-   Against CSS-in-JS: Historically had runtime overhead (calculating
+    styles, injecting thousands of style tags especially if not careful
+    with updates). It can complicate debugging (styles not in a static
+    CSS file but hidden in JS logic or devtools). It also bypasses the
+    natural optimizations browsers do (like batching style
+    recalculations; if styles are in JS, lots of small changes could
+    force repeated recalcs). And it alienates traditional designers who
+    know CSS but not React/JS, making collaboration harder.
+
+-   Current state: CSS-in-JS has evolved; many libraries now compile to
+    static CSS ahead of time (e.g., Linaria, styled-components with
+    Babel plugin) to reduce runtime cost. The argument has cooled a bit
+    as frameworks like React introduced other ways to manage styling
+    (e.g., CSS Modules, or using design systems with custom properties).
+    The performance concerns were real – e.g., Twitter’s switch away
+    from heavy runtime CSS-in-JS to more static CSS improved their load
+    times. But CSS-in-JS is still beneficial for certain dynamic use
+    cases. One could say the golden mean is: use CSS for what it’s great
+    at (static styles, leveraging cascade for theme perhaps), and use JS
+    to toggle classes or custom properties for interactivity. With
+    modern CSS capable of much that devs wanted (e.g., toggling a data
+    attribute can trigger many style changes via CSS only), there’s less
+    need to generate styles on the fly – you prepare them in CSS, then
+    flip a class.
+
+-   Specificity and !important Wars: The controversy: Managing CSS
+    cascade specificity has been a headache – e.g., one team adds a
+    #app .header .nav li a { ... } which is very specific, then another
+    needs to override that and ends up adding another rule with even
+    more qualifiers or using !important. Excessive !important use can
+    make CSS brittle (if everything is important, nothing is easily
+    overridden except by more important).
+
+-   Old approach: some methodologies enforced “never use id selectors,
+    keep selectors short” to control specificity. Others allowed one
+    layer of !important usage (like utilities).
+
+-   Cascade Layers resolution: Layers create a deliberate hierarchy,
+    making specificity less of a weapon. Within a layer, you still avoid
+    unnecessary specificity, but you no longer need to outdo an existing
+    rule’s specificity if you can place your override in a higher
+    layer[49]. Layers also invert the usual precedence for important (an
+    important in a low layer doesn’t beat normal in a higher layer)[99],
+    which discourages sloppy important use. :where() pseudo
+    (Selectors 4) gives a way to group selectors without adding
+    specificity at all, helpful when writing styles that you want to be
+    easily overridden (like default styles in a library).
+
+-   Community acceptance: It’s early, but likely style guides will
+    incorporate layer usage guidelines like “third-party styles go in
+    layer X, our base in layer Y, etc.” to avoid specificity fights. In
+    absence of layers, many have turned to CSS custom properties as a
+    kind of override mechanism (because someone can override a property
+    value at runtime without needing more specific selectors). That’s
+    another indirect way the platform gave a solution: rather than
+    fighting via selectors, you can parameterize parts of styles via
+    variables which downstream code can set.
+
+In essence, many of these controversies came from limitations or missing
+features in CSS. As those features arrive, the debates either subside or
+move to a higher level (like now that scoping can be done, the debate
+might shift to how to organize layers effectively, for instance). What
+remains constant is that CSS offers multiple techniques to solve a
+problem, and often there’s no single “right” answer – context (team
+size, project type, performance constraints) dictates the best approach.
+
+Today, CSS’s new capabilities allow us to have it both ways in some
+debates: e.g., we can use utility classes but confine them to a layer so
+they don’t clash with component styles, arguably getting semantic
+structure and utility agility together.
+
+Today’s State of CSS and What’s Next
+
+As of 2025, CSS is in a stronger place than ever. The CSS Snapshot
+2024[12] defines what “modern CSS” includes: all of Level 1 and Level 2
+(CSS1/2) and a long list of Level 3/4 modules that are considered
+Candidate Recommendation or Recommendation (effectively stable) by end
+of 2024. To summarize: - Virtually all of CSS2.1 is universally
+supported (even things like generated content, paged media to some
+extent). - Key CSS3 modules like Selectors Level 3, Media Queries
+Level 3, Backgrounds & Borders, Image Values, Color Level 3,
+Transitions, Animations, Flexbox, etc., are implemented in all evergreen
+browsers. - Later features like Grid, Variables, etc., are supported in
+all but the legacy IE engine (which now has <1% usage generally). - The
+concept of “CSS Level 4” is understood to mean particular modules
+(Selectors 4, Media Queries 4, etc.), and indeed many Level 4 features
+have shipped (e.g., MQ Level 4 added prefers-reduced-motion and
+prefers-color-scheme media features, which are widely supported). - CSS
+is not versioned like software – there won’t be “CSS4” released as a
+whole. Instead, the annual snapshots are the reference for what the
+state-of-the-art is. CSS Snapshot 2024[12] for instance lists dozens of
+modules, some at Level 1, some Level 2, etc., that together form “CSS
+2024”. This helps clarify any lingering confusion.
+
+For authors, this means you should target individual features based on
+support, not wait for a mythical next version. Resources like MDN and
+Can I Use are crucial for checking if a certain CSS feature is safe to
+use. The good news is cross-browser support is typically synchronous for
+the big things now (Interop project is evidence of that).
+
+W3C Current Work (2025): The CSS Working Group’s public “current work”
+page (on w3.org) lists active specifications and their
+statuses[24][100]. Some things on the horizon: - CSS Cascading &
+Inheritance Level 6: might include @scope rule for scoping styles, an
+idea to formally encapsulate without Shadow DOM. It’s in discussion. -
+Container Queries Level 2: likely to add style queries (e.g.,
+@container style(--custom-prop: value) or querying aspects like number
+of children, though that might be separate “State Queries”). Also
+possibly container querying of container’s container (chainable). -
+Selectors Level 5: could introduce even more powerful selectors (some
+proposals: :nth-child(matching selector) which would be killer). - Color
+Level 5: continuing improvements with color spaces (support for HDR
+color perhaps). - Fonts and Typography: There’s talk of things like
+optical sizing adjustments, better text wrapping control (the new
+text-wrap: balance property coming in 2023 ensures multi-line headings
+are balanced in length – shipped in Firefox 115). - Deep nav/anchoring:
+:focus-within and :focus-visible filled gaps, but maybe more like
+styling based on scroll position (though that might stay in JS territory
+except for scroll timeline). - Masonry Layout: CSS Grid Level 3 or a
+separate spec may address masonry (Pinterest-style uneven grids) as a
+layout mode – Chrome had an experimental implementation of
+grid-template-rows: masonry but it’s not finalized.
+
+Another area is CSS and JS integration: The Houdini initiative
+(low-level APIs to extend CSS) was big news around 2016, and some parts
+shipped (Paint API, Typed OM). In practice, Houdini’s adoption is
+limited – but the principle of making CSS extensible by authors might
+come back via other means, like defining custom media query conditions
+or custom selectors. For now, the focus seems to be on delivering
+built-in solutions for most things, rather than requiring authors to
+script CSS internals (which was Houdini’s aim).
+
+Maintaining Interop: The Interop 2024 effort likely will target
+remaining pain points – e.g., open issues with focus, form controls
+styling differences, some long-standing bugs. Each year, the browser
+teams plus Igalia (open-source consultancy) collaborate on these. This
+means authors can expect fewer and fewer “CSS quirks” and more “it just
+works the same everywhere.”
+
+Learning Modern CSS: Many who learned CSS years ago might not be aware
+of how much changed. There is an ongoing need to educate that e.g., “No,
+you don’t need floats for columns, you have flex/grid now; you don’t
+need 5 vendor prefixes, just use Autoprefixer; you don’t need to avoid
+CSS for dynamic stuff – try custom properties and :has(),” etc. The fact
+that CSS can now do things like parent selection or conditional styling
+based on container width might not have sunk in for all developers yet.
+But these will gradually become standard practice as older habits fade.
+
+No CSS4 Ever: It’s worth reinforcing – if you see an article or library
+talking about “CSS4”, be skeptical. The CSSWG explicitly states
+snapshots are not new versions, and they even retired the “CSS3”
+branding after a while. Instead, they encourage referencing module level
+or the year snapshot. So one should say “CSS Grid Level 2 (in progress)”
+or “the CSS 2024 snapshot of specs”, etc., rather than CSS4.
+
+For forward-looking tracking, the CSS Working Group drafts repository on
+GitHub is public, and one can see issues being discussed. They also have
+periodic “CSS Snapshot” drafts and publish minutes of meetings. In other
+words, now it’s easier than ever for interested developers to follow or
+even contribute (via proposals or feedback) to CSS’s future. The
+community still drives much of the agenda through this feedback.
+
+Conclusion: Today’s CSS is a robust, mature system that spans everything
+from responsive layout to dynamic interaction states, all while
+preserving the core principles from 1996 (the cascade, separation of
+style from content). Learning CSS now means learning these advanced
+techniques (grid, flex, etc.) but also understanding their history helps
+appreciate why they exist and how to use them best. And as CSS moves
+forward, it’s clear that the interplay of formal specs and grassroots
+practice will continue – ensuring CSS remains the cornerstone of web
+presentation.
+
+Annotated Bibliography and Further Reading
+
+To delve deeper into CSS’s history, specifications, and modern
+techniques, the following resources are organized by category:
+
+W3C Specifications, Snapshots, and CSS Working Group Resources: - CSS
+Snapshot 2024 – W3C Group Note (Feb 2025) – The official definition of
+CSS as of 2024, listing all modules and their stability[12]. Useful to
+see what’s considered “stable” CSS and reminds that CSS is a collection
+of modules, not a single monolith. - “Why there is no CSS4 – explaining
+CSS Levels” by Rachel Andrew (2016) – An accessible explanation of how
+CSS moved to module levels and why you shouldn’t expect a
+“CSS4”[24][25]. Great historical clarification from a CSS Working Group
+insider. - W3C Standards CSS History pages – The W3C maintains
+publication history pages for each spec (e.g., CSS1, CSS2.1, CSS Grid)
+showing draft and recommendation dates[5][6]. These are helpful for
+pinning exact timeline of spec maturation. - A Brief History of CSS
+until 2016 – by Håkon Wium Lie & Bert Bos on W3C site – A narrative by
+CSS’s creators covering 1994–2016[101][1]. Includes early decisions,
+like the origin of “cascading”[2] and stories from the browser wars
+era. - CSS Working Group Current Work page (w3.org) – Lists all active
+CSS drafts, their editors, and links. A good starting point to find
+Editor’s Drafts of emerging specs (like Container Queries Level 2,
+Selectors Level 4, etc.)[100]. - MDN (Mozilla Developer Network) Docs –
+MDN offers reference pages and guides for all CSS features, often noting
+when they were introduced and their browser support. For instance, the
+MDN pages on [--* custom properties][20][102], [:has()][28][103], and
+[cascade layers][22] (on developer.chrome.com blog with MDN link)[15]
+were referenced above. MDN is invaluable for learning current best
+practices and checking compat tables. - Can I use (caniuse.com) – A
+community-maintained database of feature support across browsers. E.g.,
+entries for [CSS Grid][15] or [CSS :has()][27] show when each browser
+shipped it. Often up-to-date with latest stable versions. Use it to
+decide if a new CSS feature can be used directly or needs fallback.
+
+Historical Web Articles and Blogs (Design and Practice): - “Responsive
+Web Design” by Ethan Marcotte, A List Apart (May 2010) – The article
+that launched RWD[30]. Explains fluid grids, flexible images, media
+queries with code examples[30][104]. A must-read for understanding the
+mindset shift of the 2010s. - CSS Zen Garden – [Dave Shea’s CSS Zen
+Garden page][58] with his reflections[3][4], and the [Zen Garden site
+itself][57]. It’s both a historical artifact (showcasing 2003-2005
+designs) and a teaching tool about separation of concerns. Dave Shea’s
+retrospective highlights how it changed industry perceptions[105]. -
+“The Evolution of the BEM Methodology” by Maxim Shirshin, Smashing
+Magazine (2013) – A detailed history of BEM at Yandex[106][107],
+explaining the problems it solved and how it spread. Good for
+understanding large-team CSS challenges. - “Object Oriented CSS” by
+Nicole Sullivan (slides/articles, 2009) – Her blog posts like [“Object
+Oriented CSS, Grids on GitHub”][48] outline OOCSS principles[18] and are
+effectively the genesis of thinking of CSS in components. For a quick
+summary, see Sullivan’s two main OOCSS tenets[18]. - “SMACSS: Scalable
+and Modular Architecture for CSS” by Jonathan Snook (2011) – Available
+as an online book. It breaks down strategies (Base, Layout, Module,
+State, Theme) and is peppered with practical advice from real
+projects. - “About normalize.css” by Nicolas Gallagher (2012) –
+[Nicolas’s blog post][42] when normalize was released[108]. He details
+how it differs from resets[66] and lists the precise goals and bug fixes
+in normalize.css[109][42]. Also mentions early adoption by Bootstrap
+etc.[43]. - Bootstrap Documentation (various versions) – Particularly
+Bootstrap’s v2 and v3 changelogs explaining the shift to responsive and
+mobile-first. e.g., Bootstrap 3 (2013) docs discuss using a grid system
+with “col-xs- col-sm- col-md- col-lg” which reflects mobile-first
+approach[74][34]. Reading these helps understand how frameworks
+interpreted best practices of the time. - Tailwind CSS
+site/documentation (2017+) – Represents utility-first in action. The
+introduction often justifies why they chose this approach (citing
+maintainability and bundle size benefits). For perspective, compare this
+to early 2010s arguments against class-heavy HTML to see the pendulum
+swing.
+
+Modern CSS Guides and Explainers: - “Learn CSS” series on web.dev
+(Google Developers) – A comprehensive up-to-date tutorial series (2021)
+covering from basics to advanced (Grid, Flexbox, Cascade). It
+incorporates modern techniques (like custom properties from the
+start). - Miriam Suzanne’s CSS Talks/Writings – Miriam is a CSSWG member
+who championed container queries. Her [“Container Queries: Style Clarity
+on the Web”][44] on web.dev (Feb 2023)[110][21] is a great high-level
+explanation with examples. She also has a site (oddBird) with a Cascade
+Layers explainer referenced in Chrome’s blog[111]. - “Cascade Layers are
+coming” – Chrome Developers Blog (Una Kravets, 2021) – [This
+article][22] introduced cascade layers when landing in browsers[15]. It
+frames them in context of problems like BEM naming collisions[112] and
+shows code examples with @layer usage[49]. Good read to grasp use cases
+for layers. - MDN for new selectors & units: e.g., MDN’s pages on :is()
+and :where(), on :focus-visible, on cqw units, etc. They often contain
+“Further Reading” which link to spec drafts or working group discussions
+for those features. - “What we learned from creating PostCSS” by Andrey
+Sitnik (Evil Martians, 2025) – [This blog post][46] reflects on PostCSS
+and Autoprefixer’s history[113]. Written by Autoprefixer’s author, it
+provides insights into how community tools came to be (e.g., desire to
+drop manual prefixing in 2013)[13] and how they influenced the
+ecosystem.
+
+Browser Compatibility and Data: - Can I Use - CSS Grid, Flexbox, etc. –
+[Grid support table][18][81][80], [Flexbox support table][13] showing
+timeline[114]. Good for checking when older browsers got on board
+(Flexbox needed IE10+, etc.). - State of CSS Survey (annual) – Not an
+authoritative source like specs, but interesting to see what features
+are widely used or liked. For example, 2022 State of CSS showed growing
+use of custom properties and grid, awareness of new stuff like :has()
+still low. This can highlight gaps in education even after spec
+release. - chromestatus.com – Google’s tracker for features in Blink.
+For instance, entries on “Subgrid” or “Cascade Layers” often link to
+explainer docs or design docs, plus give milestone of implementation.
+Useful if you want to track exactly which version enabled a feature. -
+Mozilla Platform Status and WebKit Feature Status – Similar trackers for
+Firefox and Safari engines, showing what's under consideration or in
+development.
+
+By exploring the above sources, one can gain a much richer understanding
+of CSS’s evolution: not only the “when and what” but the “why” behind
+changes, and how to apply modern CSS effectively. Each source is a
+window into either the formal standardization or the practical usage
+that together define CSS as we know it today.
+
+------------------------------------------------------------------------
+
+[1] [2] [22] [23] [101] A brief history of CSS until 2016
+
+https://www.w3.org/Style/CSS20/history.html
+
+[3] [4] [65] [105] CSS Zen Garden
+
+https://daveshea.com/projects/zen/
+
+[5] Cascading Style Sheets, level 1 publication history | Standards |
+W3C
+
+https://www.w3.org/standards/history/CSS1/
+
+[6] [7] Cascading Style Sheets Level 2 Revision 1 (CSS 2.1)
+Specification publication history | Standards | W3C
+
+https://www.w3.org/standards/history/CSS2/
+
+[8] [9] [10] [11] [24] [25] [100] Why there is no CSS4 – explaining CSS
+Levels – Rachel Andrew
+
+https://rachelandrew.co.uk/archives/2016/09/13/why-there-is-no-css4-explaining-css-levels/
+
+[12] [14] [59] [60] [62] CSS Snapshot 2024
+
+https://www.w3.org/TR/css-2024/
+
+[13] [113] What we learned from creating PostCSS—Martian Chronicles,
+Evil Martians’ team blog
+
+https://evilmartians.com/chronicles/what-we-learned-from-creating-postcss
+
+[15] [19] [49] [50] [84] [85] [86] [98] [99] [111] [112] Cascade layers
+are coming to your browser  |  Blog  |  Chrome for Developers
+
+https://developer.chrome.com/blog/cascade-layers
+
+[16] [17] [26] [67] [68] [69] Are CSS frameworks evil? – Web Designer
+Notebook
+
+https://webdesignernotebook.com/css/are-css-frameworks-evil/
+
+[18] [27] [28] [29] [76] [77] [78] Object Oriented CSS, Grids on Github
+– Nicole Sullivan
+
+https://www.stubbornella.org/2009/02/28/object-oriented-css-grids-on-github/
+
+[20] [21] [55] [56] [79] [94] [95] [96] [97] [110] Container queries
+land in stable browsers  |  Blog  |  web.dev
+
+https://web.dev/blog/cq-stable
+
+[30] [70] [71] [72] [73] [104] Responsive Web Design – A List Apart
+
+https://alistapart.com/article/responsive-web-design/
+
+[31] Media Queries Level 3 publication history | Standards - W3C
+
+https://www.w3.org/standards/history/mediaqueries-3/
+
+[32] Cascading Style Sheets (CSS) Snapshot 2010 publication history |
+Standards | W3C
+
+https://www.w3.org/standards/history/css-2010/
+
+[33] [34] [74] [75] What CSS Frameworks Should You Use? Comparing the 5
+Most Popular CSS Frameworks - CSS Hero
+
+https://www.csshero.org/css-frameworks-use-comparing-5-popular-css-frameworks/
+
+[35] [40] [63] [114] CSS Flexible Box Layout Module Level 1 publication
+history | Standards | W3C
+
+https://www.w3.org/standards/history/css-flexbox-1/
+
+[36] Flexbox - Wikipedia
+
+https://en.wikipedia.org/wiki/Flexbox
+
+[37] CSS Flexbox Layout Guide
+
+https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+
+[38] [45] CSS Grid Layout Module Level 1 publication history | Standards
+| W3C
+
+https://www.w3.org/standards/history/css-grid-1/
+
+[39] CSS Snapshot 2015 publication history | Standards | W3C
+
+https://www.w3.org/standards/history/css-2015/
+
+[41] [42] [43] [48] [66] [108] [109] About normalize.css – Notes by
+Nicolas Gallagher
+
+https://nicolasgallagher.com/about-normalize-css/
+
+[44] CSS grid layout - Wikipedia
+
+https://en.wikipedia.org/wiki/CSS_grid_layout
+
+[46] [102] Custom properties (--*): CSS variables - MDN
+
+https://developer.mozilla.org/en-US/docs/Web/CSS/--*
+
+[47] CSS Grid Layout Module Level 2 publication history | Standards |
+W3C
+
+https://www.w3.org/standards/history/css-grid-2/
+
+[51] [91] [92] [103] :has() - CSS | MDN - Mozilla
+
+https://developer.mozilla.org/en-US/docs/Web/CSS/:has
+
+[52] [93] The Undeniable Utility Of CSS :has • Josh W. Comeau
+
+https://www.joshwcomeau.com/css/has/
+
+[53] Getting ready for the :has() selector | Jeff Bridgforth
+
+https://jeffbridgforth.com/getting-ready-for-the-has-selector/
+
+[54] Container queries begin to land in stable browsers while the
+polyfill ...
+
+https://developer.chrome.com/blog/cq-polyfill
+
+[57] CSS Nesting and Its Potential to Replace CSS Preprocessors Like ...
+
+https://dev.to/mechcloud_academy/css-nesting-and-its-potential-to-replace-css-preprocessors-like-scss-and-sass-1l74
+
+[58] [88] CSS nesting: What is it and how to use it?
+
+https://johanguse.dev/blog/css-nesting
+
+[61] A Word About CSS4 — Tab Completion - xanthir.com
+
+https://www.xanthir.com/b4Ko0
+
+[64] CSS Cascade Layers | Can I use... Support tables for ... - CanIUse
+
+https://caniuse.com/css-cascade-layers
+
+[80] [82] When are we getting subgrid in css grid? : r/webdev - Reddit
+
+https://www.reddit.com/r/webdev/comments/xd3r84/when_are_we_getting_subgrid_in_css_grid/
+
+[81] Subgrid - CSS | MDN - Mozilla
+
+https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid
+
+[83] 202115 – [css-grid] Add support for subgrid (Grid Level 2)
+
+https://bugs.webkit.org/show_bug.cgi?id=202115
+
+[87] Native CSS nesting: What you need to know - LogRocket Blog
+
+https://blog.logrocket.com/native-css-nesting/
+
+[89] [90] & nesting selector - CSS | MDN
+
+https://developer.mozilla.org/en-US/docs/Web/CSS/Nesting_selector
+
+[106] [107] The Evolution Of The BEM Methodology — Smashing Magazine
+
+https://www.smashingmagazine.com/2013/02/the-history-of-the-bem-methodology/
