@@ -25,8 +25,8 @@ The CLI emits a short summary of bytes and paragraph counts; set `LOG_LEVEL=debu
 - `[markdown]` and `[citations]` strip code fences, inline backticks, markdown links, and numeric footnotes/brackets.
 - `[lists]` replaces bullets with commas to avoid choppy readings of enumerations.
 - `[abbreviations]` and `[pronunciation]` expand acronyms (e.g. `CSS` → `C. S. S.` by default) and apply small sentence-friendly replacements; the cleaner now appends digits (so `CSS1` becomes `C. S. S. 1`).  
-  `pronunciation.version_mode = "say-decimal"` lets you speak `1.0` as “one point zero,” `2.3.4` as “two point three point four,” etc.  
-- `[pronunciation]` now also supports brand-specific spellings (MySQL, SQLite, PostCSS, W3C), American year pronunciation (1992 → “one thousand, nine hundred and ninety two”), and HTML tag handling that spells just the opening tag and drops closing tags. The relevant options live under `pronunciation.brand-map`, `year_mode`, and `html_tag_pronunciation`.
+- `pronunciation.version_mode = "say-decimal"` lets you speak `1.0` as “one point zero,” `2.3.4` as “two point three point four,” etc., while `[number]` controls how the spelled-out components are joined (no commas by default) and whether the noisy “and” appears in years.  
+- `[pronunciation]` now also supports brand-specific spellings (MySQL, SQLite, PostCSS, W3C), American year pronunciation (1992 → “one thousand, nine hundred and ninety two”), and HTML tag handling that spells just the opening tag and drops closing tags. The relevant options live under `pronunciation.brand-map`, `year_mode`, `number`, and `html_tag_pronunciation`.
 - `[pronunciation]` now also supports brand-specific spellings (MySQL, SQLite, PostCSS, W3C), American year pronunciation (1992 → “one thousand, nine hundred and ninety two”), and HTML tag handling that spells just the opening tag and drops closing tags. The relevant options live under `pronunciation.brand-map`, `year_mode`, and `html_tag_pronunciation`.
 - `[whitespace]`, `[guardrails]`, and `[experimental]` govern spacing collapses, warning thresholds, and optional punctuation-ray trimming.
 

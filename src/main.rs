@@ -28,6 +28,7 @@ static RE_HTML_OPEN: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"<\s*([a-zA-Z][a-zA-Z0-9]*)[^>]*>").unwrap());
 static RE_HTML_CLOSE: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"</\s*[a-zA-Z][a-zA-Z0-9]*\s*>").unwrap());
+static RE_COMMA_BEFORE_PERIOD: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*\.").unwrap());
 
 #[derive(Parser, Debug)]
 #[command(
@@ -412,6 +413,7 @@ struct PronunciationConfig {
     html_tag_pronunciation: bool,
     html_tag_separator: String,
     version_mode: VersionMode,
+    number_config: NumberConfig,
 }
 
 impl Default for PronunciationConfig {
@@ -441,6 +443,23 @@ impl Default for PronunciationConfig {
             html_tag_pronunciation: true,
             html_tag_separator: " ".to_string(),
             version_mode: VersionMode::SayDecimal,
+            number_config: NumberConfig::default(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct NumberConfig {
+    separator: String,
+    insert_and: bool,
+}
+
+impl Default for NumberConfig {
+    fn default() -> Self {
+        Self {
+            separator: " ".to_string(),
+            insert_and: true,
         }
     }
 }
@@ -713,8 +732,15 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
         text = expand_acronyms(&text, &config.abbreviations);
     }
 
-    if let YearMode::American = config.pronunciation.year_mode {
-        text = apply_year_pronunciation(&text, &config.pronunciation.year_mode);
+    match config.pronunciation.year_mode {
+        YearMode::American => {
+            text = apply_year_pronunciation(
+                &text,
+                &config.pronunciation.year_mode,
+                &config.pronunciation.number_config,
+            );
+        }
+        YearMode::None => {}
     }
 
     if config.pronunciation.version_mode != VersionMode::None {
@@ -728,6 +754,8 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
     if config.punctuation.collapse_commas && config.punctuation.max_consecutive_commas > 0 {
         text = collapse_commas(&text, config.punctuation.max_consecutive_commas);
     }
+
+    text = RE_COMMA_BEFORE_PERIOD.replace_all(&text, ".").to_string();
 
     if config.experimental.strip_punct_runs && config.experimental.punct_run_min_len > 0 {
         let pattern = RE_PUNCT_RUN.clone();
@@ -895,7 +923,7 @@ fn apply_brand_pronunciation(text: &str, brands: &BTreeMap<String, String>) -> S
     result
 }
 
-fn apply_year_pronunciation(text: &str, mode: &YearMode) -> String {
+fn apply_year_pronunciation(text: &str, mode: &YearMode, number_config: &NumberConfig) -> String {
     let mut result = text.to_string();
     match mode {
         YearMode::American => {
@@ -903,7 +931,7 @@ fn apply_year_pronunciation(text: &str, mode: &YearMode) -> String {
             result = re
                 .replace_all(&result, |caps: &regex::Captures| {
                     let year: usize = caps[1].parse().unwrap_or(0);
-                    year_to_words(year)
+                    year_to_words(year, number_config)
                 })
                 .to_string();
         }
@@ -912,7 +940,7 @@ fn apply_year_pronunciation(text: &str, mode: &YearMode) -> String {
     result
 }
 
-fn year_to_words(year: usize) -> String {
+fn year_to_words(year: usize, number_config: &NumberConfig) -> String {
     if year < 1000 || year > 2099 {
         return year.to_string();
     }
@@ -961,14 +989,14 @@ fn year_to_words(year: usize) -> String {
             }
         }
 
-        if hundreds > 0 {
+        if hundreds > 0 && number_config.insert_and {
             parts.push(format!("and {}", remainder_str));
         } else {
             parts.push(remainder_str);
         }
     }
 
-    parts.join(", ")
+    parts.join(&number_config.separator)
 }
 
 fn simple_number_to_words(n: usize) -> String {

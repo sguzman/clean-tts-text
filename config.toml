@@ -76,6 +76,10 @@ html_tag_pronunciation = true
 html_tag_separator = " "
 version_mode = "say-decimal"
 
+[number]
+separator = " "
+insert_and = true
+
 [pronunciation.replacements]
 "×" = " by "
 "::" = " colon colon "
