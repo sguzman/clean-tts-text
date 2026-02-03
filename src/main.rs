@@ -67,6 +67,7 @@ struct Config {
     logging: LoggingConfig,
     experimental: ExperimentalConfig,
     punctuation: PunctuationConfig,
+    selector: SelectorConfig,
 }
 
 impl Default for Config {
@@ -86,6 +87,7 @@ impl Default for Config {
             logging: LoggingConfig::default(),
             experimental: ExperimentalConfig::default(),
             punctuation: PunctuationConfig::default(),
+            selector: SelectorConfig::default(),
         }
     }
 }
@@ -564,6 +566,20 @@ impl Default for PunctuationConfig {
     }
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct SelectorConfig {
+    prefix: String,
+}
+
+impl Default for SelectorConfig {
+    fn default() -> Self {
+        Self {
+            prefix: "dot ".to_string(),
+        }
+    }
+}
+
 #[derive(Default)]
 struct CleanStats {
     input_length: usize,
@@ -756,6 +772,9 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
     if config.pronunciation.html_tag_pronunciation {
         text = apply_html_pronunciation(&text, &config.pronunciation.html_tag_separator);
     }
+    if !config.selector.prefix.is_empty() {
+        text = apply_selector_pronunciation(&text, &config.selector.prefix);
+    }
 
     if config.punctuation.collapse_commas && config.punctuation.max_consecutive_commas > 0 {
         text = collapse_commas(&text, config.punctuation.max_consecutive_commas);
@@ -770,6 +789,8 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
     }
 
     text = RE_COMMA_BEFORE_PERIOD.replace_all(&text, ".").to_string();
+
+    text = RE_MULTI_SPACE.replace_all(&text, " ").to_string();
 
     if config.experimental.strip_punct_runs && config.experimental.punct_run_min_len > 0 {
         let pattern = RE_PUNCT_RUN.clone();
@@ -1144,6 +1165,17 @@ fn apply_html_pronunciation(text: &str, separator: &str) -> String {
         })
         .to_string();
     RE_HTML_CLOSE.replace_all(&result, "").to_string()
+}
+
+fn apply_selector_pronunciation(text: &str, prefix: &str) -> String {
+    if prefix.is_empty() {
+        return text.to_string();
+    }
+    let re = Regex::new(r"(?P<dot>\.)(?P<name>[a-zA-Z0-9_-]+)").unwrap();
+    re.replace_all(text, |caps: &regex::Captures| {
+        format!("{}{}", prefix, &caps["name"])
+    })
+    .to_string()
 }
 
 fn expand_acronyms(text: &str, cfg: &AbbreviationConfig) -> String {

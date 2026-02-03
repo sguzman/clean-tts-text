@@ -80,6 +80,9 @@ version_mode = "say-decimal"
 separator = " "
 insert_and = true
 
+[selector]
+prefix = "dot "
+
 [pronunciation.replacements]
 "×" = " by "
 "::" = " colon colon "
@@ -89,6 +92,7 @@ insert_and = true
 "(" = ", "
 ")" = ", "
 "%" = " percent "
+"*" = " star "
 
 [pronunciation.brand-map]
 MySQL = "My S. Q. L."
