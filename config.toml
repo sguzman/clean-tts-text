@@ -39,7 +39,7 @@ strip_markdown_links = true
 [citations]
 drop_numeric_brackets = true
 drop_stacked_numeric_brackets = true
-drop_parenthetical_numeric = false
+drop_parenthetical_numeric = true
 drop_generic_parentheses = true
 drop_generic_brackets = true
 
@@ -74,6 +74,7 @@ enable_replacements = true
 year_mode = "american"
 html_tag_pronunciation = true
 html_tag_separator = " "
+version_mode = "say-decimal"
 
 [pronunciation.replacements]
 "×" = " by "
@@ -83,6 +84,7 @@ html_tag_separator = " "
 "}" = " brace "
 "(" = ", "
 ")" = ", "
+"%" = " percent "
 
 [pronunciation.brand-map]
 MySQL = "My S. Q. L."

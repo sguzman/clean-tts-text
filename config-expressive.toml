@@ -74,6 +74,7 @@ enable_replacements = true
 year_mode = "american"
 html_tag_pronunciation = true
 html_tag_separator = " "
+version_mode = "say-decimal"
 
 [pronunciation.replacements]
 "×" = " by "

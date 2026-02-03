@@ -411,6 +411,7 @@ struct PronunciationConfig {
     year_mode: YearMode,
     html_tag_pronunciation: bool,
     html_tag_separator: String,
+    version_mode: VersionMode,
 }
 
 impl Default for PronunciationConfig {
@@ -439,7 +440,21 @@ impl Default for PronunciationConfig {
             year_mode: YearMode::American,
             html_tag_pronunciation: true,
             html_tag_separator: " ".to_string(),
+            version_mode: VersionMode::SayDecimal,
         }
+    }
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "kebab-case")]
+enum VersionMode {
+    None,
+    SayDecimal,
+}
+
+impl Default for VersionMode {
+    fn default() -> Self {
+        VersionMode::SayDecimal
     }
 }
 
@@ -702,6 +717,10 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
         text = apply_year_pronunciation(&text, &config.pronunciation.year_mode);
     }
 
+    if config.pronunciation.version_mode != VersionMode::None {
+        text = apply_version_pronunciation(&text, &config.pronunciation.version_mode);
+    }
+
     if config.pronunciation.html_tag_pronunciation {
         text = apply_html_pronunciation(&text, &config.pronunciation.html_tag_separator);
     }
@@ -950,6 +969,85 @@ fn year_to_words(year: usize) -> String {
     }
 
     parts.join(", ")
+}
+
+fn simple_number_to_words(n: usize) -> String {
+    if n == 0 {
+        return "zero".to_string();
+    }
+    if n >= 10_000 {
+        return n.to_string();
+    }
+
+    let ones = [
+        "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
+    let teens = [
+        "ten",
+        "eleven",
+        "twelve",
+        "thirteen",
+        "fourteen",
+        "fifteen",
+        "sixteen",
+        "seventeen",
+        "eighteen",
+        "nineteen",
+    ];
+    let tens = [
+        "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+    ];
+
+    let thousands = n / 1000;
+    let hundreds = (n / 100) % 10;
+    let remainder = n % 100;
+
+    let mut parts: Vec<String> = Vec::new();
+    if thousands > 0 {
+        parts.push(format!("{}", ones[thousands]));
+        parts.push("thousand".to_string());
+    }
+    if hundreds > 0 {
+        parts.push(format!("{}", ones[hundreds]));
+        parts.push("hundred".to_string());
+    }
+
+    if remainder > 0 {
+        if remainder < 10 {
+            parts.push(ones[remainder].to_string());
+        } else if remainder < 20 {
+            parts.push(teens[remainder - 10].to_string());
+        } else {
+            let ten = remainder / 10;
+            parts.push(tens[ten].to_string());
+            if remainder % 10 > 0 {
+                parts.push(ones[remainder % 10].to_string());
+            }
+        }
+    }
+
+    parts.join(" ")
+}
+
+fn apply_version_pronunciation(text: &str, mode: &VersionMode) -> String {
+    if let VersionMode::SayDecimal = mode {
+        let re = Regex::new(r"\b\d+(?:\.\d+)+\b").unwrap();
+        re.replace_all(text, |caps: &regex::Captures| {
+            caps[0]
+                .split('.')
+                .map(|segment| {
+                    segment
+                        .parse::<usize>()
+                        .map(simple_number_to_words)
+                        .unwrap_or_else(|_| segment.to_string())
+                })
+                .collect::<Vec<_>>()
+                .join(" point ")
+        })
+        .to_string()
+    } else {
+        text.to_string()
+    }
 }
 
 fn apply_html_pronunciation(text: &str, separator: &str) -> String {
