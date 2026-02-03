@@ -51,7 +51,7 @@ bullet_markers = ["- ", "* ", "• ", "– ", "— "]
 [abbreviations]
 expand_acronyms = true
 tokens = ["CSS", "HTML", "HTTP", "HTTPS", "URL", "API", "CPU", "GPU", "JSON", "SQL", "XML", "TTS", "XTTS", "LLM"]
-letter_separator = ". "
+letter_separator = " "
 digit_separator = " dot "
 
 [abbreviations.letter-sounds]
