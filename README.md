@@ -25,7 +25,7 @@ The CLI emits a short summary of bytes and paragraph counts; set `LOG_LEVEL=debu
 - `[markdown]` and `[citations]` strip code fences, inline backticks, markdown links, and numeric footnotes/brackets.
 - `[lists]` replaces bullets with commas to avoid choppy readings of enumerations.
 - `[abbreviations]` and `[pronunciation]` expand acronyms (e.g. `CSS` → `C. S. S.` by default) and apply small sentence-friendly replacements; the cleaner now appends digits (so `CSS1` becomes `C. S. S. 1`).
-- `[punctuation]` collapses multiple comma-driven pauses so long lists don't trigger repeated gaps; you can control how many commas survive in a row.
+- `[pronunciation]` now also supports brand-specific spellings (MySQL, SQLite, PostCSS, W3C), American year pronunciation (1992 → “one thousand, nine hundred and ninety two”), and HTML tag handling that spells just the opening tag and drops closing tags. The relevant options live under `pronunciation.brand-map`, `year_mode`, and `html_tag_pronunciation`.
 - `[whitespace]`, `[guardrails]`, and `[experimental]` govern spacing collapses, warning thresholds, and optional punctuation-ray trimming.
 
 Each section is fully documented inside `config.toml` so you can adjust the behavior before running the CLI.

@@ -19,8 +19,15 @@ static RE_NUMERIC_CITE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[\s*\d+\s*\]").
 static RE_PAREN_CITE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\(\s*\d+(?:,\s*\d+)*\s*\)").unwrap());
 static RE_MARKDOWN_LINK: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[([^]]+)\]\([^)]*\)").unwrap());
 static RE_MULTI_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"[ \t\u{00A0}]+").unwrap());
+static RE_GENERIC_BRACKETS: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\[[^\]]*?\d[^\]]*?\]").unwrap());
+static RE_GENERIC_PARENS: Lazy<Regex> = Lazy::new(|| Regex::new(r"\([^)]*?\d[^)]*?\)").unwrap());
 static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.;:!?])").unwrap());
 static RE_PUNCT_RUN: Lazy<Regex> = Lazy::new(|| Regex::new(r"([=\\-~]{5,})").unwrap());
+static RE_HTML_OPEN: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"<\s*([a-zA-Z][a-zA-Z0-9]*)[^>]*>").unwrap());
+static RE_HTML_CLOSE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"</\s*[a-zA-Z][a-zA-Z0-9]*\s*>").unwrap());
 
 #[derive(Parser, Debug)]
 #[command(
@@ -290,6 +297,8 @@ struct CitationConfig {
     drop_numeric_brackets: bool,
     drop_stacked_numeric_brackets: bool,
     drop_parenthetical_numeric: bool,
+    drop_generic_parentheses: bool,
+    drop_generic_brackets: bool,
 }
 
 impl Default for CitationConfig {
@@ -298,6 +307,8 @@ impl Default for CitationConfig {
             drop_numeric_brackets: true,
             drop_stacked_numeric_brackets: true,
             drop_parenthetical_numeric: false,
+            drop_generic_parentheses: true,
+            drop_generic_brackets: true,
         }
     }
 }
@@ -395,6 +406,11 @@ struct PronunciationConfig {
     enable_replacements: bool,
     #[serde(default)]
     replacements: BTreeMap<String, String>,
+    #[serde(default)]
+    brand_map: BTreeMap<String, String>,
+    year_mode: YearMode,
+    html_tag_pronunciation: bool,
+    html_tag_separator: String,
 }
 
 impl Default for PronunciationConfig {
@@ -407,10 +423,36 @@ impl Default for PronunciationConfig {
         replacements.insert("}".to_string(), " brace ".to_string());
         replacements.insert("(".to_string(), ", ".to_string());
         replacements.insert(")".to_string(), ", ".to_string());
+
+        let mut brand_map = BTreeMap::new();
+        brand_map.insert("MySQL".to_string(), "My S. Q. L.".to_string());
+        brand_map.insert("Mysql".to_string(), "My S. Q. L.".to_string());
+        brand_map.insert("SQLITE".to_string(), "S. Q. Lite".to_string());
+        brand_map.insert("SQLite".to_string(), "S. Q. Lite".to_string());
+        brand_map.insert("PostCSS".to_string(), "Post C. S. S.".to_string());
+        brand_map.insert("W3C".to_string(), "Double U Three C".to_string());
+
         Self {
             enable_replacements: true,
             replacements,
+            brand_map,
+            year_mode: YearMode::American,
+            html_tag_pronunciation: true,
+            html_tag_separator: " ".to_string(),
         }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum YearMode {
+    None,
+    American,
+}
+
+impl Default for YearMode {
+    fn default() -> Self {
+        YearMode::American
     }
 }
 
@@ -614,6 +656,12 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
     if config.citations.drop_parenthetical_numeric {
         text = RE_PAREN_CITE.replace_all(&text, "").to_string();
     }
+    if config.citations.drop_generic_brackets {
+        text = RE_GENERIC_BRACKETS.replace_all(&text, "").to_string();
+    }
+    if config.citations.drop_generic_parentheses {
+        text = RE_GENERIC_PARENS.replace_all(&text, "").to_string();
+    }
 
     if config.structure.unwrap_hard_wrapped_lines {
         text = unwrap_paragraphs(
@@ -642,9 +690,20 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
     if config.pronunciation.enable_replacements && !config.pronunciation.replacements.is_empty() {
         text = apply_replacements(&text, &config.pronunciation.replacements);
     }
+    if !config.pronunciation.brand_map.is_empty() {
+        text = apply_brand_pronunciation(&text, &config.pronunciation.brand_map);
+    }
 
     if config.abbreviations.expand_acronyms && !config.abbreviations.map.is_empty() {
         text = expand_acronyms(&text, &config.abbreviations);
+    }
+
+    if let YearMode::American = config.pronunciation.year_mode {
+        text = apply_year_pronunciation(&text, &config.pronunciation.year_mode);
+    }
+
+    if config.pronunciation.html_tag_pronunciation {
+        text = apply_html_pronunciation(&text, &config.pronunciation.html_tag_separator);
     }
 
     if config.punctuation.collapse_commas && config.punctuation.max_consecutive_commas > 0 {
@@ -802,6 +861,108 @@ fn apply_replacements(text: &str, replacements: &BTreeMap<String, String>) -> St
     }
 
     result
+}
+
+fn apply_brand_pronunciation(text: &str, brands: &BTreeMap<String, String>) -> String {
+    let mut result = text.to_string();
+    let mut entries: Vec<_> = brands.iter().collect();
+    entries.sort_by_key(|(key, _)| Reverse(key.len()));
+
+    for (from, to) in entries {
+        let pattern = Regex::new(&format!(r"\b{}\b", regex::escape(from))).unwrap();
+        result = pattern.replace_all(&result, to.as_str()).to_string();
+    }
+
+    result
+}
+
+fn apply_year_pronunciation(text: &str, mode: &YearMode) -> String {
+    let mut result = text.to_string();
+    match mode {
+        YearMode::American => {
+            let re = Regex::new(r"\b(1\d{3}|20\d{2})\b").unwrap();
+            result = re
+                .replace_all(&result, |caps: &regex::Captures| {
+                    let year: usize = caps[1].parse().unwrap_or(0);
+                    year_to_words(year)
+                })
+                .to_string();
+        }
+        YearMode::None => {}
+    }
+    result
+}
+
+fn year_to_words(year: usize) -> String {
+    if year < 1000 || year > 2099 {
+        return year.to_string();
+    }
+    let ones = [
+        "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
+    let teens = [
+        "ten",
+        "eleven",
+        "twelve",
+        "thirteen",
+        "fourteen",
+        "fifteen",
+        "sixteen",
+        "seventeen",
+        "eighteen",
+        "nineteen",
+    ];
+    let tens = [
+        "", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+    ];
+
+    let thousands = year / 1000;
+    let hundreds = (year / 100) % 10;
+    let remainder = year % 100;
+
+    let mut parts: Vec<String> = Vec::new();
+    if thousands > 0 {
+        parts.push(format!("{} thousand", ones[thousands]));
+    }
+    if hundreds > 0 {
+        parts.push(format!("{} hundred", ones[hundreds]));
+    }
+
+    if remainder > 0 {
+        let mut remainder_str = String::new();
+        if remainder < 10 {
+            remainder_str.push_str(ones[remainder]);
+        } else if remainder < 20 {
+            remainder_str.push_str(teens[remainder - 10]);
+        } else {
+            remainder_str.push_str(tens[remainder / 10]);
+            if remainder % 10 > 0 {
+                remainder_str.push_str(" ");
+                remainder_str.push_str(ones[remainder % 10]);
+            }
+        }
+
+        if hundreds > 0 {
+            parts.push(format!("and {}", remainder_str));
+        } else {
+            parts.push(remainder_str);
+        }
+    }
+
+    parts.join(", ")
+}
+
+fn apply_html_pronunciation(text: &str, separator: &str) -> String {
+    let result = RE_HTML_OPEN
+        .replace_all(text, |caps: &regex::Captures| {
+            if separator.is_empty() {
+                caps[1].to_string()
+            } else {
+                format!("{}{}", &caps[1], separator)
+            }
+        })
+        .to_string();
+    RE_HTML_CLOSE.replace_all(&result, "").to_string()
 }
 
 fn expand_acronyms(text: &str, cfg: &AbbreviationConfig) -> String {

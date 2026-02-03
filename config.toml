@@ -40,6 +40,8 @@ strip_markdown_links = true
 drop_numeric_brackets = true
 drop_stacked_numeric_brackets = true
 drop_parenthetical_numeric = false
+drop_generic_parentheses = true
+drop_generic_brackets = true
 
 [lists]
 flatten_bullets = true
@@ -69,6 +71,9 @@ LLM = "L L M"
 
 [pronunciation]
 enable_replacements = true
+year_mode = "american"
+html_tag_pronunciation = true
+html_tag_separator = " "
 
 [pronunciation.replacements]
 "×" = " by "
@@ -78,6 +83,14 @@ enable_replacements = true
 "}" = " brace "
 "(" = ", "
 ")" = ", "
+
+[pronunciation.brand-map]
+MySQL = "My S. Q. L."
+Mysql = "My S. Q. L."
+SQLITE = "S. Q. Lite"
+SQLite = "S. Q. Lite"
+PostCSS = "Post C. S. S."
+W3C = "Double U Three C"
 
 [guardrails]
 min_output_chars_warn = 200
