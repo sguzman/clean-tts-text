@@ -52,7 +52,8 @@ bullet_markers = ["- ", "* ", "• ", "– ", "— "]
 expand_acronyms = true
 acronym_style = "dotted"
 case_policy = "upper"
-letter_separator = " "
+letter_separator = ". "
+digit_separator = " dot "
 
 [abbreviations.map]
 CSS = "C S S"

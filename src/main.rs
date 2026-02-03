@@ -352,6 +352,7 @@ struct AbbreviationConfig {
     #[serde(default)]
     map: BTreeMap<String, String>,
     letter_separator: String,
+    digit_separator: String,
 }
 
 impl Default for AbbreviationConfig {
@@ -377,6 +378,7 @@ impl Default for AbbreviationConfig {
             case_policy: CasePolicy::Upper,
             map,
             letter_separator: "".to_string(),
+            digit_separator: " dot ".to_string(),
         }
     }
 }
@@ -1204,7 +1206,12 @@ fn expand_acronyms(text: &str, cfg: &AbbreviationConfig) -> String {
                 if let Some(digits) = caps.name("digits") {
                     if !digits.as_str().is_empty() {
                         spelled.push(' ');
-                        spelled.push_str(digits.as_str());
+                        let formatted = digits
+                            .as_str()
+                            .split('.')
+                            .collect::<Vec<_>>()
+                            .join(&cfg.digit_separator);
+                        spelled.push_str(&formatted);
                     }
                 }
                 spelled
