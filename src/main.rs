@@ -29,6 +29,8 @@ static RE_HTML_OPEN: Lazy<Regex> =
 static RE_HTML_CLOSE: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"</\s*[a-zA-Z][a-zA-Z0-9]*\s*>").unwrap());
 static RE_COMMA_BEFORE_PERIOD: Lazy<Regex> = Lazy::new(|| Regex::new(r",\s*\.").unwrap());
+static RE_ACRONYM_SEQUENCE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\b[A-Z0-9](?:[.\s]*[A-Z0-9])+\b").unwrap());
 
 #[derive(Parser, Debug)]
 #[command(
@@ -349,6 +351,7 @@ struct AbbreviationConfig {
     case_policy: CasePolicy,
     #[serde(default)]
     map: BTreeMap<String, String>,
+    letter_separator: String,
 }
 
 impl Default for AbbreviationConfig {
@@ -373,6 +376,7 @@ impl Default for AbbreviationConfig {
             acronym_style: AcronymStyle::Spaced,
             case_policy: CasePolicy::Upper,
             map,
+            letter_separator: "".to_string(),
         }
     }
 }
@@ -1207,5 +1211,29 @@ fn expand_acronyms(text: &str, cfg: &AbbreviationConfig) -> String {
             })
             .to_string();
     }
+    result = normalize_acronym_spacing(&result, &cfg.letter_separator);
     result
+}
+
+fn normalize_acronym_spacing(text: &str, separator: &str) -> String {
+    if separator != "" {
+        return RE_ACRONYM_SEQUENCE
+            .replace_all(text, |caps: &regex::Captures| {
+                let letters: Vec<String> = caps[0]
+                    .chars()
+                    .filter(|c| c.is_alphanumeric())
+                    .map(|c| c.to_string())
+                    .collect();
+                letters.join(separator)
+            })
+            .to_string();
+    }
+    RE_ACRONYM_SEQUENCE
+        .replace_all(text, |caps: &regex::Captures| {
+            caps[0]
+                .chars()
+                .filter(|c| c.is_alphanumeric())
+                .collect::<String>()
+        })
+        .to_string()
 }
