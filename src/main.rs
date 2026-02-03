@@ -1,3 +1,765 @@
-fn main() {
-    println!("Hello, world!");
+use anyhow::{Context, Result};
+use clap::Parser;
+use env_logger::Builder;
+use log::{info, warn};
+use once_cell::sync::Lazy;
+use regex::Regex;
+use serde::Deserialize;
+use std::cmp::Reverse;
+use std::collections::BTreeMap;
+use std::fs;
+use std::path::{Path, PathBuf};
+use unicode_normalization::UnicodeNormalization;
+
+static RE_CODE_FENCE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?s)```.*?```").unwrap());
+static RE_INLINE_CODE: Lazy<Regex> = Lazy::new(|| Regex::new(r"`([^`]+)`").unwrap());
+static RE_STACKED_NUM_CITE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?:\[\s*\d+\s*\]){2,}").unwrap());
+static RE_NUMERIC_CITE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[\s*\d+\s*\]").unwrap());
+static RE_PAREN_CITE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\(\s*\d+(?:,\s*\d+)*\s*\)").unwrap());
+static RE_MARKDOWN_LINK: Lazy<Regex> = Lazy::new(|| Regex::new(r"\[([^]]+)\]\([^)]*\)").unwrap());
+static RE_MULTI_SPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"[ \t\u{00A0}]+").unwrap());
+static RE_SPACE_BEFORE_PUNCT: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+([,.;:!?])").unwrap());
+static RE_PUNCT_RUN: Lazy<Regex> = Lazy::new(|| Regex::new(r"([=\\-~]{5,})").unwrap());
+
+#[derive(Parser, Debug)]
+#[command(
+    author,
+    version,
+    about = "Clean and normalize text before feeding it into XTTS-style TTS engines."
+)]
+struct Args {
+    /// File that should be cleaned.
+    #[arg(short, long, value_name = "FILE")]
+    input: PathBuf,
+
+    /// Where the normalized text should be written.
+    #[arg(short, long, value_name = "FILE")]
+    output: PathBuf,
+
+    /// Optional override for the config toml. Defaults to ./config.toml.
+    #[arg(short, long, value_name = "FILE")]
+    config: Option<PathBuf>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct Config {
+    meta: MetaConfig,
+    io: IoConfig,
+    unicode: UnicodeConfig,
+    whitespace: WhitespaceConfig,
+    structure: StructureConfig,
+    markdown: MarkdownConfig,
+    citations: CitationConfig,
+    lists: ListConfig,
+    abbreviations: AbbreviationConfig,
+    pronunciation: PronunciationConfig,
+    guardrails: GuardrailConfig,
+    logging: LoggingConfig,
+    experimental: ExperimentalConfig,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            meta: MetaConfig::default(),
+            io: IoConfig::default(),
+            unicode: UnicodeConfig::default(),
+            whitespace: WhitespaceConfig::default(),
+            structure: StructureConfig::default(),
+            markdown: MarkdownConfig::default(),
+            citations: CitationConfig::default(),
+            lists: ListConfig::default(),
+            abbreviations: AbbreviationConfig::default(),
+            pronunciation: PronunciationConfig::default(),
+            guardrails: GuardrailConfig::default(),
+            logging: LoggingConfig::default(),
+            experimental: ExperimentalConfig::default(),
+        }
+    }
+}
+
+impl Config {
+    /// Load the config from disk (or fall back to defaults).
+    fn load(path: Option<&Path>) -> Result<Self> {
+        let path = path.unwrap_or_else(|| Path::new("config.toml"));
+        match fs::read_to_string(path) {
+            Ok(contents) => {
+                let cfg: Config = toml::from_str(&contents)
+                    .with_context(|| format!("failed to parse {}", path.display()))?;
+                Ok(cfg)
+            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+                warn!(
+                    "config {} not found, falling back to defaults",
+                    path.display()
+                );
+                Ok(Config::default())
+            }
+            Err(err) => Err(err).context("reading config")?,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct MetaConfig {
+    version: u32,
+    profile: String,
+    notes: String,
+}
+
+impl Default for MetaConfig {
+    fn default() -> Self {
+        Self {
+            version: 1,
+            profile: "clean-narration-slightly-expressive".to_string(),
+            notes: "Targeted for XTTS / Daisy Studio / ebook2audiobook pipelines.".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct IoConfig {
+    output_format: OutputFormat,
+    normalize_line_endings: bool,
+    trim_trailing_whitespace: bool,
+}
+
+impl Default for IoConfig {
+    fn default() -> Self {
+        Self {
+            output_format: OutputFormat::OneParagraphPerLine,
+            normalize_line_endings: true,
+            trim_trailing_whitespace: true,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum OutputFormat {
+    OneParagraphPerLine,
+    PreserveParagraphs,
+}
+
+impl Default for OutputFormat {
+    fn default() -> Self {
+        OutputFormat::OneParagraphPerLine
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct UnicodeConfig {
+    normalization: UnicodeNormalizationMode,
+    ascii_quotes: bool,
+    dash_mode: DashMode,
+    ellipsis_mode: EllipsisMode,
+}
+
+impl Default for UnicodeConfig {
+    fn default() -> Self {
+        Self {
+            normalization: UnicodeNormalizationMode::NFKC,
+            ascii_quotes: true,
+            dash_mode: DashMode::Comma,
+            ellipsis_mode: EllipsisMode::Period,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum UnicodeNormalizationMode {
+    NFKC,
+    NFC,
+    None,
+}
+
+impl Default for UnicodeNormalizationMode {
+    fn default() -> Self {
+        UnicodeNormalizationMode::NFKC
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum DashMode {
+    Comma,
+    Hyphen,
+    Keep,
+}
+
+impl Default for DashMode {
+    fn default() -> Self {
+        DashMode::Comma
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum EllipsisMode {
+    Period,
+    Triple,
+    Keep,
+}
+
+impl Default for EllipsisMode {
+    fn default() -> Self {
+        EllipsisMode::Period
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct WhitespaceConfig {
+    collapse_horizontal: bool,
+    remove_space_before_punct: bool,
+    max_consecutive_blank_lines: usize,
+}
+
+impl Default for WhitespaceConfig {
+    fn default() -> Self {
+        Self {
+            collapse_horizontal: true,
+            remove_space_before_punct: true,
+            max_consecutive_blank_lines: 1,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct StructureConfig {
+    unwrap_hard_wrapped_lines: bool,
+    paragraph_boundary: ParagraphBoundary,
+    join_lines_with: String,
+}
+
+impl Default for StructureConfig {
+    fn default() -> Self {
+        Self {
+            unwrap_hard_wrapped_lines: true,
+            paragraph_boundary: ParagraphBoundary::BlankLines,
+            join_lines_with: " ".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum ParagraphBoundary {
+    BlankLines,
+    Never,
+}
+
+impl Default for ParagraphBoundary {
+    fn default() -> Self {
+        ParagraphBoundary::BlankLines
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct MarkdownConfig {
+    drop_code_fences: bool,
+    code_fence_replacement: String,
+    strip_inline_code: bool,
+    strip_markdown_links: bool,
+}
+
+impl Default for MarkdownConfig {
+    fn default() -> Self {
+        Self {
+            drop_code_fences: true,
+            code_fence_replacement: String::new(),
+            strip_inline_code: true,
+            strip_markdown_links: true,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct CitationConfig {
+    drop_numeric_brackets: bool,
+    drop_stacked_numeric_brackets: bool,
+    drop_parenthetical_numeric: bool,
+}
+
+impl Default for CitationConfig {
+    fn default() -> Self {
+        Self {
+            drop_numeric_brackets: true,
+            drop_stacked_numeric_brackets: true,
+            drop_parenthetical_numeric: false,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct ListConfig {
+    flatten_bullets: bool,
+    bullet_replacement: String,
+    #[serde(default = "ListConfig::default_markers")]
+    bullet_markers: Vec<String>,
+}
+
+impl ListConfig {
+    fn default_markers() -> Vec<String> {
+        ["- ", "* ", "• ", "– ", "— "].map(str::to_string).to_vec()
+    }
+}
+
+impl Default for ListConfig {
+    fn default() -> Self {
+        Self {
+            flatten_bullets: true,
+            bullet_replacement: ", ".to_string(),
+            bullet_markers: Self::default_markers(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct AbbreviationConfig {
+    expand_acronyms: bool,
+    acronym_style: AcronymStyle,
+    case_policy: CasePolicy,
+    #[serde(default)]
+    map: BTreeMap<String, String>,
+}
+
+impl Default for AbbreviationConfig {
+    fn default() -> Self {
+        let mut map = BTreeMap::new();
+        map.insert("CSS".to_string(), "C S S".to_string());
+        map.insert("HTML".to_string(), "H T M L".to_string());
+        map.insert("HTTP".to_string(), "H T T P".to_string());
+        map.insert("HTTPS".to_string(), "H T T P S".to_string());
+        map.insert("URL".to_string(), "U R L".to_string());
+        map.insert("API".to_string(), "A P I".to_string());
+        map.insert("CPU".to_string(), "C P U".to_string());
+        map.insert("GPU".to_string(), "G P U".to_string());
+        map.insert("JSON".to_string(), "J S O N".to_string());
+        map.insert("SQL".to_string(), "S Q L".to_string());
+        map.insert("XML".to_string(), "X M L".to_string());
+        map.insert("TTS".to_string(), "T T S".to_string());
+        map.insert("XTTS".to_string(), "X T T S".to_string());
+        map.insert("LLM".to_string(), "L L M".to_string());
+        Self {
+            expand_acronyms: true,
+            acronym_style: AcronymStyle::Spaced,
+            case_policy: CasePolicy::Upper,
+            map,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum AcronymStyle {
+    Spaced,
+    Dotted,
+}
+
+impl Default for AcronymStyle {
+    fn default() -> Self {
+        AcronymStyle::Spaced
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+enum CasePolicy {
+    Exact,
+    Upper,
+}
+
+impl Default for CasePolicy {
+    fn default() -> Self {
+        CasePolicy::Upper
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct PronunciationConfig {
+    enable_replacements: bool,
+    #[serde(default)]
+    replacements: BTreeMap<String, String>,
+}
+
+impl Default for PronunciationConfig {
+    fn default() -> Self {
+        let mut replacements = BTreeMap::new();
+        replacements.insert("×".to_string(), " by ".to_string());
+        replacements.insert("::".to_string(), " colon colon ".to_string());
+        replacements.insert(";".to_string(), ",".to_string());
+        replacements.insert("{".to_string(), " brace ".to_string());
+        replacements.insert("}".to_string(), " brace ".to_string());
+        replacements.insert("(".to_string(), ", ".to_string());
+        replacements.insert(")".to_string(), ", ".to_string());
+        Self {
+            enable_replacements: true,
+            replacements,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct GuardrailConfig {
+    min_output_chars_warn: usize,
+    max_paragraph_chars: usize,
+}
+
+impl Default for GuardrailConfig {
+    fn default() -> Self {
+        Self {
+            min_output_chars_warn: 200,
+            max_paragraph_chars: 0,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct LoggingConfig {
+    level: String,
+    print_summary: bool,
+    write_report: bool,
+    report_path: String,
+}
+
+impl Default for LoggingConfig {
+    fn default() -> Self {
+        Self {
+            level: "info".to_string(),
+            print_summary: true,
+            write_report: false,
+            report_path: "tts-clean.report.txt".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(default)]
+struct ExperimentalConfig {
+    strip_punct_runs: bool,
+    punct_run_min_len: usize,
+}
+
+impl Default for ExperimentalConfig {
+    fn default() -> Self {
+        Self {
+            strip_punct_runs: false,
+            punct_run_min_len: 5,
+        }
+    }
+}
+
+#[derive(Default)]
+struct CleanStats {
+    input_length: usize,
+    output_length: usize,
+    paragraph_count: usize,
+}
+
+fn main() -> Result<()> {
+    let args = Args::parse();
+    let config = Config::load(args.config.as_deref())?;
+    init_logger(&config.logging);
+    info!("Loaded config profile: {}", config.meta.profile);
+
+    let raw = fs::read_to_string(&args.input)
+        .with_context(|| format!("Failed to read {}", args.input.display()))?;
+    info!("Read {} bytes from {}", raw.len(), args.input.display());
+
+    let (cleaned, stats) = clean_text(&raw, &config);
+    info!(
+        "Cleaned text is {} bytes ({} paragraphs)",
+        stats.output_length, stats.paragraph_count
+    );
+
+    if config.guardrails.min_output_chars_warn > 0
+        && stats.output_length < config.guardrails.min_output_chars_warn
+    {
+        warn!(
+            "output is shorter than {} chars ({}), double-check that cleaning did not drop the whole document",
+            config.guardrails.min_output_chars_warn, stats.output_length
+        );
+    }
+
+    if config.logging.print_summary {
+        info!(
+            "Summary: read {} bytes, wrote {} bytes, {} paragraphs",
+            stats.input_length, stats.output_length, stats.paragraph_count
+        );
+    }
+
+    if config.logging.write_report {
+        let report = format!(
+            "Clean report\n============\nInput: {}\nOutput: {}\nParagraphs: {}\nProfile: {}\n",
+            args.input.display(),
+            args.output.display(),
+            stats.paragraph_count,
+            config.meta.profile
+        );
+        fs::write(&config.logging.report_path, report)
+            .with_context(|| format!("writing report to {}", config.logging.report_path))?;
+        info!("Wrote report to {}", config.logging.report_path);
+    }
+
+    fs::write(&args.output, cleaned)
+        .with_context(|| format!("Failed to write {}", args.output.display()))?;
+    info!("Wrote cleaned text to {}", args.output.display());
+
+    Ok(())
+}
+
+fn init_logger(logging: &LoggingConfig) {
+    let env = env_logger::Env::default().default_filter_or(logging.level.as_str());
+    Builder::from_env(env).init();
+}
+
+fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
+    let mut text = s.to_string();
+    let mut stats = CleanStats::default();
+    stats.input_length = text.len();
+
+    if config.io.normalize_line_endings {
+        text = text.replace("\r\n", "\n").replace('\r', "\n");
+    }
+
+    if config.io.trim_trailing_whitespace {
+        text = text
+            .lines()
+            .map(|line| line.trim_end())
+            .collect::<Vec<_>>()
+            .join("\n");
+    }
+
+    text = match config.unicode.normalization {
+        UnicodeNormalizationMode::NFKC => text.nfkc().collect::<String>(),
+        UnicodeNormalizationMode::NFC => text.nfc().collect::<String>(),
+        UnicodeNormalizationMode::None => text,
+    };
+
+    if config.unicode.ascii_quotes {
+        text = text
+            .replace("’", "'")
+            .replace("‘", "'")
+            .replace("“", "\"")
+            .replace("”", "\"");
+    }
+
+    text = match config.unicode.dash_mode {
+        DashMode::Comma => text.replace('—', ", ").replace('–', ", "),
+        DashMode::Hyphen => text.replace('—', " - ").replace('–', " - "),
+        DashMode::Keep => text,
+    };
+
+    text = match config.unicode.ellipsis_mode {
+        EllipsisMode::Period => text.replace('…', ".").replace("...", "."),
+        EllipsisMode::Triple => text.replace('…', "..."),
+        EllipsisMode::Keep => text,
+    };
+
+    if config.markdown.drop_code_fences {
+        if RE_CODE_FENCE.is_match(&text) {
+            text = RE_CODE_FENCE
+                .replace_all(&text, config.markdown.code_fence_replacement.as_str())
+                .to_string();
+        }
+    }
+
+    if config.markdown.strip_inline_code {
+        text = RE_INLINE_CODE.replace_all(&text, "$1").to_string();
+    }
+
+    if config.markdown.strip_markdown_links {
+        text = RE_MARKDOWN_LINK.replace_all(&text, "$1").to_string();
+    }
+
+    if config.citations.drop_stacked_numeric_brackets {
+        text = RE_STACKED_NUM_CITE.replace_all(&text, "").to_string();
+    }
+    if config.citations.drop_numeric_brackets {
+        text = RE_NUMERIC_CITE.replace_all(&text, "").to_string();
+    }
+    if config.citations.drop_parenthetical_numeric {
+        text = RE_PAREN_CITE.replace_all(&text, "").to_string();
+    }
+
+    if config.structure.unwrap_hard_wrapped_lines {
+        text = unwrap_paragraphs(
+            &text,
+            &config.structure.join_lines_with,
+            &config.structure.paragraph_boundary,
+        );
+    }
+
+    if config.lists.flatten_bullets {
+        text = flatten_bullets(&text, &config.lists);
+    }
+
+    if config.whitespace.collapse_horizontal {
+        text = RE_MULTI_SPACE.replace_all(&text, " ").to_string();
+    }
+
+    if config.whitespace.remove_space_before_punct {
+        text = RE_SPACE_BEFORE_PUNCT.replace_all(&text, "$1").to_string();
+    }
+
+    if config.whitespace.max_consecutive_blank_lines > 0 {
+        text = collapse_blank_lines(&text, config.whitespace.max_consecutive_blank_lines);
+    }
+
+    if config.pronunciation.enable_replacements && !config.pronunciation.replacements.is_empty() {
+        text = apply_replacements(&text, &config.pronunciation.replacements);
+    }
+
+    if config.abbreviations.expand_acronyms && !config.abbreviations.map.is_empty() {
+        text = expand_acronyms(&text, &config.abbreviations);
+    }
+
+    if config.experimental.strip_punct_runs && config.experimental.punct_run_min_len > 0 {
+        let pattern = RE_PUNCT_RUN.clone();
+        text = pattern
+            .replace_all(&text, |caps: &regex::Captures| {
+                caps[1].chars().next().unwrap_or('-').to_string()
+            })
+            .to_string();
+    }
+
+    if config.io.trim_trailing_whitespace {
+        text = text
+            .lines()
+            .map(|line| line.trim_end())
+            .collect::<Vec<_>>()
+            .join("\n");
+    }
+
+    text = text.trim().to_string();
+    text.push('\n');
+
+    stats.output_length = text.len();
+    stats.paragraph_count = text.lines().filter(|line| !line.trim().is_empty()).count();
+
+    if config.guardrails.max_paragraph_chars > 0 {
+        let limit = config.guardrails.max_paragraph_chars;
+        for line in text.lines() {
+            if !line.trim().is_empty() && line.len() > limit {
+                warn!(
+                    "paragraph exceeds guardrail of {} chars ({} chars)",
+                    limit,
+                    line.len()
+                );
+            }
+        }
+    }
+
+    (text, stats)
+}
+
+fn unwrap_paragraphs(text: &str, joiner: &str, boundary: &ParagraphBoundary) -> String {
+    let mut paragraphs = Vec::new();
+    let mut buffer = Vec::new();
+
+    for line in text.lines() {
+        if line.trim().is_empty() {
+            if !buffer.is_empty() {
+                paragraphs.push(buffer.join(joiner));
+                buffer.clear();
+            }
+            if let ParagraphBoundary::BlankLines = boundary {
+                paragraphs.push(String::new());
+            }
+        } else {
+            buffer.push(line.trim().to_string());
+        }
+    }
+
+    if !buffer.is_empty() {
+        paragraphs.push(buffer.join(joiner));
+    }
+
+    paragraphs.join("\n")
+}
+
+fn flatten_bullets(text: &str, cfg: &ListConfig) -> String {
+    text.lines()
+        .map(|line| {
+            let trimmed = line.trim_start();
+            if let Some(marker) = cfg
+                .bullet_markers
+                .iter()
+                .find(|marker| trimmed.starts_with(marker.as_str()))
+            {
+                let remainder = trimmed[marker.len()..].trim_start();
+                format!("{}{}", cfg.bullet_replacement, remainder)
+            } else {
+                line.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+fn collapse_blank_lines(text: &str, max_blank: usize) -> String {
+    if max_blank == 0 {
+        return text.to_string();
+    }
+    let mut count = 0;
+    let mut out = Vec::new();
+    for line in text.lines() {
+        if line.trim().is_empty() {
+            count += 1;
+            if count <= max_blank {
+                out.push(String::new());
+            }
+        } else {
+            count = 0;
+            out.push(line.to_string());
+        }
+    }
+    out.join("\n")
+}
+
+fn apply_replacements(text: &str, replacements: &BTreeMap<String, String>) -> String {
+    let mut result = text.to_string();
+    let mut entries: Vec<_> = replacements.iter().collect();
+    entries.sort_by_key(|(key, _)| Reverse(key.len()));
+
+    for (from, to) in entries {
+        result = result.replace(from, to);
+    }
+
+    result
+}
+
+fn expand_acronyms(text: &str, cfg: &AbbreviationConfig) -> String {
+    let mut result = text.to_string();
+    for (token, replacement) in cfg.map.iter() {
+        let token_to_match = match cfg.case_policy {
+            CasePolicy::Exact => token.clone(),
+            CasePolicy::Upper => token.to_uppercase(),
+        };
+        let final_replacement = match cfg.acronym_style {
+            AcronymStyle::Spaced => replacement.clone(),
+            AcronymStyle::Dotted => replacement.replace(' ', ". "),
+        };
+        let pattern = format!(r"\b{}\b", regex::escape(&token_to_match));
+        let re = Regex::new(&pattern).unwrap();
+        result = re
+            .replace_all(&result, final_replacement.as_str())
+            .to_string();
+    }
+    result
 }

@@ -1,0 +1,88 @@
+[meta]
+version = 1
+profile = "clean-narration-slightly-expressive"
+notes = "Tune for XTTS / Daisy Studio / ebook2audiobook pipelines."
+
+[logging]
+level = "info"
+print_summary = true
+write_report = false
+report_path = "tts-clean.report.txt"
+
+[io]
+output_format = "one-paragraph-per-line"
+normalize_line_endings = true
+trim_trailing_whitespace = true
+
+[unicode]
+normalization = "NFKC"
+ascii_quotes = true
+dash_mode = "comma"
+ellipsis_mode = "period"
+
+[whitespace]
+collapse_horizontal = true
+remove_space_before_punct = true
+max_consecutive_blank_lines = 1
+
+[structure]
+unwrap_hard_wrapped_lines = true
+paragraph_boundary = "blank-lines"
+join_lines_with = " "
+
+[markdown]
+drop_code_fences = true
+code_fence_replacement = ""
+strip_inline_code = true
+strip_markdown_links = true
+
+[citations]
+drop_numeric_brackets = true
+drop_stacked_numeric_brackets = true
+drop_parenthetical_numeric = false
+
+[lists]
+flatten_bullets = true
+bullet_replacement = ", "
+bullet_markers = ["- ", "* ", "• ", "– ", "— "]
+
+[abbreviations]
+expand_acronyms = true
+acronym_style = "spaced"
+case_policy = "upper"
+
+[abbreviations.map]
+CSS = "C S S"
+HTML = "H T M L"
+HTTP = "H T T P"
+HTTPS = "H T T P S"
+URL = "U R L"
+API = "A P I"
+CPU = "C P U"
+GPU = "G P U"
+JSON = "J S O N"
+SQL = "S Q L"
+XML = "X M L"
+TTS = "T T S"
+XTTS = "X T T S"
+LLM = "L L M"
+
+[pronunciation]
+enable_replacements = true
+
+[pronunciation.replacements]
+"×" = " by "
+"::" = " colon colon "
+";" = ","
+"{" = " brace "
+"}" = " brace "
+"(" = ", "
+")" = ", "
+
+[guardrails]
+min_output_chars_warn = 200
+max_paragraph_chars = 0
+
+[experimental]
+strip_punct_runs = false
+punct_run_min_len = 5
