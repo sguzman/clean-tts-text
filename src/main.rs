@@ -434,6 +434,8 @@ impl Default for PronunciationConfig {
         brand_map.insert("SQLite".to_string(), "S. Q. Lite".to_string());
         brand_map.insert("PostCSS".to_string(), "Post C. S. S.".to_string());
         brand_map.insert("W3C".to_string(), "Double U Three C".to_string());
+        brand_map.insert("JSSS".to_string(), "J. S. S. S.".to_string());
+        brand_map.insert("IE4".to_string(), "I. E. Four".to_string());
 
         Self {
             enable_replacements: true,
@@ -547,6 +549,8 @@ impl Default for ExperimentalConfig {
 struct PunctuationConfig {
     collapse_commas: bool,
     max_consecutive_commas: usize,
+    slash_replacement: String,
+    stop_precedence: String,
 }
 
 impl Default for PunctuationConfig {
@@ -554,6 +558,8 @@ impl Default for PunctuationConfig {
         Self {
             collapse_commas: true,
             max_consecutive_commas: 1,
+            slash_replacement: " or ".to_string(),
+            stop_precedence: ".:;,?".to_string(),
         }
     }
 }
@@ -755,6 +761,14 @@ fn clean_text(s: &str, config: &Config) -> (String, CleanStats) {
         text = collapse_commas(&text, config.punctuation.max_consecutive_commas);
     }
 
+    if !config.punctuation.slash_replacement.is_empty() {
+        text = replace_slashes(&text, &config.punctuation.slash_replacement);
+    }
+
+    if !config.punctuation.stop_precedence.is_empty() {
+        text = collapse_stop_sequences(&text, &config.punctuation.stop_precedence);
+    }
+
     text = RE_COMMA_BEFORE_PERIOD.replace_all(&text, ".").to_string();
 
     if config.experimental.strip_punct_runs && config.experimental.punct_run_min_len > 0 {
@@ -896,6 +910,47 @@ fn collapse_commas(text: &str, max_consecutive: usize) -> String {
     }
 
     result
+}
+
+fn replace_slashes(text: &str, replacement: &str) -> String {
+    if replacement.is_empty() {
+        text.replace('/', "")
+    } else {
+        text.replace('/', replacement)
+    }
+}
+
+fn collapse_stop_sequences(text: &str, precedence: &str) -> String {
+    let mut result = String::with_capacity(text.len());
+    let mut run: Vec<char> = Vec::new();
+    for ch in text.chars() {
+        if precedence.contains(ch) {
+            run.push(ch);
+            continue;
+        }
+        if !run.is_empty() {
+            if let Some(chosen) = choose_stop(&run, precedence) {
+                result.push(chosen);
+            }
+            run.clear();
+        }
+        result.push(ch);
+    }
+    if !run.is_empty() {
+        if let Some(chosen) = choose_stop(&run, precedence) {
+            result.push(chosen);
+        }
+    }
+    result
+}
+
+fn choose_stop(run: &[char], precedence: &str) -> Option<char> {
+    for pref in precedence.chars() {
+        if run.contains(&pref) {
+            return Some(pref);
+        }
+    }
+    run.first().copied()
 }
 
 fn apply_replacements(text: &str, replacements: &BTreeMap<String, String>) -> String {

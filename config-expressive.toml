@@ -105,6 +105,8 @@ max_paragraph_chars = 0
 [punctuation]
 collapse_commas = true
 max_consecutive_commas = 1
+slash_replacement = " or "
+stop_precedence = ".:;,?"
 
 [experimental]
 strip_punct_runs = false
